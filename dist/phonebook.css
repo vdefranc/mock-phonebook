@@ -74,15 +74,16 @@ body {
     height: 100%; }
 
 .contact-view-button-wrapper {
-  margin-right: 1em; }
+  margin-right: 1em;
+  text-align: right; }
   .contact-view-button-wrapper button {
     height: 2.5em; }
     .contact-view-button-wrapper button:focus {
       outline: none !important; }
-  @media (max-width: 600px) {
-    .contact-view-button-wrapper {
-      float: none; }
-      .contact-view-button-wrapper button {
-        margin-bottom: 0.3em; } }
+  @media (max-width: 780px) {
+    .contact-view-button-wrapper button {
+      margin-bottom: 0.3em;
+      margin-right: 0.3em;
+      float: left; } }
 
 /*# sourceMappingURL=phonebook.css.map */

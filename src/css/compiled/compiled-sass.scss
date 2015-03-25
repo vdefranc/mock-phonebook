@@ -124,6 +124,7 @@ body {
 
 .contact-view-button-wrapper {
 	margin-right: 1em;
+	text-align: right;
 
 	button {
 		height: 2.5em;
@@ -134,11 +135,12 @@ body {
 		}
 	}
 
-	@media (max-width: 600px) {
-		float: none;
+	@media (max-width: 780px) {
 
 		button {
 			margin-bottom: 0.3em;
+			margin-right: 0.3em;
+			float: left;
 		}
 	}
 }
