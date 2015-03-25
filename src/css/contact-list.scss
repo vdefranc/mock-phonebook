@@ -1,10 +1,23 @@
 #contact-list-column {
 	border-right: 1px solid #ccc;
 	height: 100%;
+	overflow: hidden;
 
 
-	.search-group {
-		margin: 1em auto;
+	.search-bar {
+		padding: 1em 1em 1em 0em;
+
+		button {
+			float: right;
+			height: 2.5em;
+			
+			.glyphicon { 
+				top: 0;
+			}
+			&:focus {
+				outline: none;
+			}
+		}
 	}
 
 	input[type="textbox"] {
@@ -15,16 +28,33 @@
 
 .contact-listing {
 	overflow: auto;
-	padding: 1em 0;
 
+	div {
+		height: 3em;
+
+		p {
+			line-height: 3em;
+		}
+	}
 	&:hover {
-		background-color: green;
 		cursor: pointer;
 	}
 
+	.listing-name {
+		&:hover {
+			background-color: lightblue;
+		}
+	}
 	.glyphicon {
 		text-align: center;
-		padding: 0.2em 0;
+		top: 0px;
+
+		&:before {
+			line-height: 3em;
+		}
+		&:hover {
+			background-color: red;
+		}
 	}
 
 	&:first-of-type {

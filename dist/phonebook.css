@@ -3,21 +3,37 @@ body {
 
 #contact-list-column {
   border-right: 1px solid #ccc;
-  height: 100%; }
-  #contact-list-column .search-group {
-    margin: 1em auto; }
+  height: 100%;
+  overflow: hidden; }
+  #contact-list-column .search-bar {
+    padding: 1em 1em 1em 0em; }
+    #contact-list-column .search-bar button {
+      float: right;
+      height: 2.5em; }
+      #contact-list-column .search-bar button .glyphicon {
+        top: 0; }
+      #contact-list-column .search-bar button:focus {
+        outline: none; }
   #contact-list-column input[type="textbox"] {
     width: 100%; }
 
 .contact-listing {
-  overflow: auto;
-  padding: 1em 0; }
+  overflow: auto; }
+  .contact-listing div {
+    height: 3em; }
+    .contact-listing div p {
+      line-height: 3em; }
   .contact-listing:hover {
-    background-color: green;
     cursor: pointer; }
+  .contact-listing .listing-name:hover {
+    background-color: lightblue; }
   .contact-listing .glyphicon {
     text-align: center;
-    padding: 0.2em 0; }
+    top: 0px; }
+    .contact-listing .glyphicon:before {
+      line-height: 3em; }
+    .contact-listing .glyphicon:hover {
+      background-color: red; }
   .contact-listing:first-of-type {
     border-top: 1px solid #ccc; }
   .contact-listing:nth-child(even) {
