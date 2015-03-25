@@ -19,3 +19,24 @@
 	}
 
 }
+
+.contact-view-button-wrapper {
+	margin-right: 1em;
+
+	button {
+		height: 2.5em;
+
+
+		&:focus {
+			outline: none !important;
+		}
+	}
+
+	@media (max-width: 600px) {
+		float: none;
+
+		button {
+			margin-bottom: 0.3em;
+		}
+	}
+}

@@ -4,16 +4,14 @@
 	overflow: hidden;
 
 
-	.search-bar {
+	.top-bar {
 		padding: 1em 1em 1em 0em;
+		border-bottom: 1px solid #ccc;
 
 		button {
 			float: right;
 			height: 2.5em;
 			
-			.glyphicon { 
-				top: 0;
-			}
 			&:focus {
 				outline: none;
 			}
@@ -47,7 +45,6 @@
 	}
 	.glyphicon {
 		text-align: center;
-		top: 0px;
 
 		&:before {
 			line-height: 3em;
@@ -55,10 +52,6 @@
 		&:hover {
 			background-color: red;
 		}
-	}
-
-	&:first-of-type {
-		border-top: 1px solid #ccc;
 	}
 
 	&:nth-child(even) {

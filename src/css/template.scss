@@ -1,3 +1,40 @@
+/* Query Vars */
+
+$medium-lg: 980px;
+$medium-sm: 680px;
+$mobile: 525px;
+
+.glyphicon {
+	top: 0;
+}
+
+html {
+	background-color: #eee;
+}
+
 body {
-    padding: 0 1em;
+	width: 70%;
+	margin: 0 auto;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+
+	@media (max-width: $medium-lg) {
+		width: 90%;
+	}
+	@media (max-width: $medium-sm) {
+		width: 100%;
+	}
+}
+
+@media (max-width: $mobile) {
+	#contact-list-column, #contact-view {
+		position: absolute;
+		width:100%;
+	}
+	#contact-list-column {
+		left: 0;
+	}
+	#contact-view {
+		left: 100%;
+	}
 }

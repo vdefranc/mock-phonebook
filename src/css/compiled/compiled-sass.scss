@@ -1,22 +1,58 @@
-body {
-    padding: 0 1em;
+/* Query Vars */
+
+$medium-lg: 980px;
+$medium-sm: 680px;
+$mobile: 525px;
+
+.glyphicon {
+	top: 0;
 }
+
+html {
+	background-color: #eee;
+}
+
+body {
+	width: 70%;
+	margin: 0 auto;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+
+	@media (max-width: $medium-lg) {
+		width: 90%;
+	}
+	@media (max-width: $medium-sm) {
+		width: 100%;
+	}
+}
+
+@media (max-width: $mobile) {
+	#contact-list-column, #contact-view {
+		position: absolute;
+		width:100%;
+	}
+	#contact-list-column {
+		left: 0;
+	}
+	#contact-view {
+		left: 100%;
+	}
+}
+
 #contact-list-column {
 	border-right: 1px solid #ccc;
 	height: 100%;
 	overflow: hidden;
 
 
-	.search-bar {
+	.top-bar {
 		padding: 1em 1em 1em 0em;
+		border-bottom: 1px solid #ccc;
 
 		button {
 			float: right;
 			height: 2.5em;
 			
-			.glyphicon { 
-				top: 0;
-			}
 			&:focus {
 				outline: none;
 			}
@@ -50,7 +86,6 @@ body {
 	}
 	.glyphicon {
 		text-align: center;
-		top: 0px;
 
 		&:before {
 			line-height: 3em;
@@ -58,10 +93,6 @@ body {
 		&:hover {
 			background-color: red;
 		}
-	}
-
-	&:first-of-type {
-		border-top: 1px solid #ccc;
 	}
 
 	&:nth-child(even) {
@@ -89,4 +120,25 @@ body {
 		}
 	}
 
+}
+
+.contact-view-button-wrapper {
+	margin-right: 1em;
+
+	button {
+		height: 2.5em;
+
+
+		&:focus {
+			outline: none !important;
+		}
+	}
+
+	@media (max-width: 600px) {
+		float: none;
+
+		button {
+			margin-bottom: 0.3em;
+		}
+	}
 }
