@@ -193,6 +193,8 @@ var ContactView = Backbone.View.extend({
 			.removeClass('active-edit');
 
 			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
+
+			editing = false;
 		}
 		
 	}
