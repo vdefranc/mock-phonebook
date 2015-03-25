@@ -1,7 +1,11 @@
+var currentCollection = 0;
+
 var ContactCollection = Backbone.Collection.extend({
 	model: Contact,
 	initialize: function () {
 		this.reset(data);
-		console.log(this)
+		var self = this;
+		
+		new ContactView({model: self.at(currentCollection)});
 	}
 });

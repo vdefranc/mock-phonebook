@@ -4,6 +4,24 @@
 
 	h3 {
 		margin-top: 0;
+		display: inline-block;
+	}
+
+	.contact-fields {
+		margin-top: 2em;
+		width: 100%;
+
+		p {
+			margin-bottom: 1.5em;
+		}
+		input {
+			float: right;
+			clear: right;
+
+			border: none;
+			border-bottom: 1px dotted #ccc;
+			text-align: center;
+		}
 	}
 }
 
@@ -21,8 +39,9 @@
 }
 
 .contact-view-button-wrapper {
-	margin-right: 1em;
 	text-align: right;
+	float:right;
+	display: inline-block;
 
 	button {
 		height: 2.5em;

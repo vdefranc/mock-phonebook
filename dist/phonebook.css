@@ -6,6 +6,7 @@ html {
   background-color: #eee; }
 
 body {
+  overflow-x: hidden;
   width: 70%;
   margin: 0 auto;
   border-left: 1px solid #ccc;
@@ -66,7 +67,19 @@ body {
   height: 100%;
   padding-top: 1em; }
   #contact-view h3 {
-    margin-top: 0; }
+    margin-top: 0;
+    display: inline-block; }
+  #contact-view .contact-fields {
+    margin-top: 2em;
+    width: 100%; }
+    #contact-view .contact-fields p {
+      margin-bottom: 1.5em; }
+    #contact-view .contact-fields input {
+      float: right;
+      clear: right;
+      border: none;
+      border-bottom: 1px dotted #ccc;
+      text-align: center; }
 
 .contact-info {
   height: 40%; }
@@ -75,8 +88,9 @@ body {
     height: 100%; }
 
 .contact-view-button-wrapper {
-  margin-right: 1em;
-  text-align: right; }
+  text-align: right;
+  float: right;
+  display: inline-block; }
   .contact-view-button-wrapper button {
     height: 2.5em; }
     .contact-view-button-wrapper button:focus {

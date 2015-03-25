@@ -5,7 +5,7 @@ var Contact = Backbone.Model.extend({
 	email: 'Enter Email',
 	initialize: function (){
 		var self = this;
-		new ContactView({model: self});
+		new ContactListingView({model: self});
 	},
 });
 
