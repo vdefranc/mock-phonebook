@@ -42,7 +42,7 @@ body {
 #contact-list-column {
 	border-right: 1px solid #ccc;
 	height: 100%;
-	overflow: hidden;
+	overflow-y: scroll;
 
 
 	.top-bar {
@@ -73,6 +73,7 @@ body {
 
 		p {
 			line-height: 3em;
+			margin-bottom: 0;
 		}
 	}
 	&:hover {

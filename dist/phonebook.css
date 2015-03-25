@@ -30,7 +30,7 @@ body {
 #contact-list-column {
   border-right: 1px solid #ccc;
   height: 100%;
-  overflow: hidden; }
+  overflow-y: scroll; }
   #contact-list-column .top-bar {
     padding: 1em 1em 1em 0em;
     border-bottom: 1px solid #ccc; }
@@ -47,7 +47,8 @@ body {
   .contact-listing div {
     height: 3em; }
     .contact-listing div p {
-      line-height: 3em; }
+      line-height: 3em;
+      margin-bottom: 0; }
   .contact-listing:hover {
     cursor: pointer; }
   .contact-listing .listing-name:hover {
