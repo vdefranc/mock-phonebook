@@ -1,6 +1,6 @@
 var Contact = Backbone.Model.extend({
-	first: 'Enter Name...',
-	last: 'Enter Name...',
+	first: 'New',
+	last: 'Contact',
 	phone: 'Enter Number',
 	email: 'Enter Email',
 	initialize: function (){

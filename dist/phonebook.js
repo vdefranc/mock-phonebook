@@ -3,8 +3,8 @@ var phonebook = window.phonebook || (function () {
 var currentContact = 0,
 	editing = false;
 var Contact = Backbone.Model.extend({
-	first: 'Enter Name...',
-	last: 'Enter Name...',
+	first: 'New',
+	last: 'Contact',
 	phone: 'Enter Number',
 	email: 'Enter Email',
 	initialize: function (){
@@ -122,6 +122,7 @@ var ContactListingView = Backbone.View.extend({
             <div class="edit-contact-name col-xs-2 glyphicon glyphicon-trash"></div>'),
 	initialize: function (){
 		this.render();
+		this.listenTo(this.model, 'change', this.render);
 	},
 	render: function () {
 		var questionHtml = this.template({
@@ -138,7 +139,7 @@ var ContactView = Backbone.View.extend({
 	$container: $('#contact-view'),
 	template: _.template(' \
             <div class="col-sm-12">\
-                <h3>New Contact</h3>\
+                <h3><%= first %> <%= last %></h3>\
                  <div class="contact-view-button-wrapper">\
                     <button class="btn btn-default edit" type="button">\
                         <span class="glyphicon glyphicon-edit"></span>\
@@ -158,6 +159,7 @@ var ContactView = Backbone.View.extend({
 	'),
 	events: {
 		'click .edit': 'edit',
+		'click .delete': 'delete'
 	},
 	initialize: function () {
 		this.render();
@@ -192,11 +194,32 @@ var ContactView = Backbone.View.extend({
 			this.$el.find('input').attr("readonly", true)
 			.removeClass('active-edit');
 
-			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
+			var inputs = this.$el.find('input');
+			var vals = [];
 
+			inputs.each(function(i){
+				vals.push($(this).val());
+			});
+
+			this.model.set({
+				first: vals[0],
+				last: vals[1],
+				phone: vals[2]
+			});
+
+			this.render();
+
+			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
 			editing = false;
 		}
-		
+	},
+	delete: function () {
+		this.model.destroy();
+
+		this.model = new Contact();
+		console.log(this.model);
+
+		this.render();
 	}
 });
 
