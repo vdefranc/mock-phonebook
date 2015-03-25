@@ -21,6 +21,10 @@
 			border: none;
 			border-bottom: 1px dotted #ccc;
 			text-align: center;
+
+			&.active-edit {
+				background-color: lightblue;
+			}
 		}
 	}
 }

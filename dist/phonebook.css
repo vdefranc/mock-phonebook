@@ -80,6 +80,8 @@ body {
       border: none;
       border-bottom: 1px dotted #ccc;
       text-align: center; }
+      #contact-view .contact-fields input.active-edit {
+        background-color: lightblue; }
 
 .contact-info {
   height: 40%; }
