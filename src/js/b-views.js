@@ -3,11 +3,13 @@ var ContactListView = Backbone.View.extend({
 	$container: $('#contact-list-column'),
 	initialize: function (){
 		this.render();
+		var self = this;
 
 		//Instatiate listitem views
 		this.collection.forEach(function (i) {
 			new ContactListingView({
-				model: i
+				model: i,
+				collection: self.collection
 			});
 		});
 	},
@@ -23,7 +25,8 @@ var ContactListingView = Backbone.View.extend({
             <div class="col-xs-10 listing-name"><p><%= name %></p></div> \
             <div class="delete-contact col-xs-2 glyphicon glyphicon-trash"></div>'),
 	events: {
-		'click .delete-contact': 'listDelete'
+		'click .delete-contact': 'listDelete',
+		'click .listing-name': 'pickName'
 	},
 	initialize: function (){
 		this.render();
@@ -44,6 +47,10 @@ var ContactListingView = Backbone.View.extend({
 	removeView: function () {
 		this.remove();
 		this.stopListening();
+	},
+	pickName: function () {
+		currentModel = this.model.cid;
+		this.collection.trigger('pickName');
 	}
 });
 
@@ -77,6 +84,7 @@ var ContactViewportView = Backbone.View.extend({
 	},
 	initialize: function () {
 		this.listenTo(this.model, 'destroy', this.newModel);
+		this.on('logsomething', this.changeModel);
 		this.render();
 	},
 	render: function (){
@@ -139,6 +147,10 @@ var ContactViewportView = Backbone.View.extend({
 	newModel: function () {
 		var newone = new Contact({first: 'lol', last: 'haha', phone: 123});
 		this.model = newone;
+		this.render();
+	},
+	changeModel: function () {
+		this.model = this.collection.get({cid: currentModel});
 		this.render();
 	}
 });
