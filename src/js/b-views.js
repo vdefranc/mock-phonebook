@@ -1,24 +1,54 @@
+var ContactListView = Backbone.View.extend({
+	id: 'contact-list',
+	$container: $('#contact-list-column'),
+	initialize: function (){
+		this.render();
+
+		//Instatiate listitem views
+		this.collection.forEach(function (i) {
+			new ContactListingView({
+				model: i
+			});
+		});
+	},
+	render: function () {
+		this.$container.append(this.$el);
+	},
+});
+
 var ContactListingView = Backbone.View.extend({
 	className: 'contact-listing row',
 	$container: $('#contact-list'),
 	template: _.template(' \
             <div class="col-xs-10 listing-name"><p><%= name %></p></div> \
-            <div class="edit-contact-name col-xs-2 glyphicon glyphicon-trash"></div>'),
+            <div class="delete-contact col-xs-2 glyphicon glyphicon-trash"></div>'),
+	events: {
+		'click .delete-contact': 'listDelete'
+	},
 	initialize: function (){
 		this.render();
 		this.listenTo(this.model, 'change', this.render);
+		this.listenTo(this.model, 'destroy', this.removeView);
 	},
 	render: function () {
 		var questionHtml = this.template({
-			name: this.model.get('first') + ' ' + this.model.get('last')
+			name: this.model.get('last') + ', ' + this.model.get('first')
 		});
 
 		this.$el.html(questionHtml);
 		this.$container.append(this.$el);
+	},
+	listDelete: function () {
+		this.model.destroy();
+	},
+	removeView: function () {
+		this.remove();
+		this.stopListening();
 	}
 });
 
-var ContactView = Backbone.View.extend({
+var ContactViewportView = Backbone.View.extend({
+	model: Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
 	template: _.template(' \
@@ -46,6 +76,7 @@ var ContactView = Backbone.View.extend({
 		'click .delete': 'delete'
 	},
 	initialize: function () {
+		this.listenTo(this.model, 'destroy', this.newModel);
 		this.render();
 	},
 	render: function (){
@@ -103,6 +134,11 @@ var ContactView = Backbone.View.extend({
 		this.model = new Contact();
 		console.log(this.model);
 
+		this.render();
+	},
+	newModel: function () {
+		var newone = new Contact({first: 'lol', last: 'haha', phone: 123});
+		this.model = newone;
 		this.render();
 	}
 });

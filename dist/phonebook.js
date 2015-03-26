@@ -8,9 +8,8 @@ var Contact = Backbone.Model.extend({
 	phone: 'Enter Number',
 	email: 'Enter Email',
 	initialize: function (){
-		var self = this;
-		new ContactListingView({model: self});
-	},
+		//
+	}
 });
 
 var data = [
@@ -114,27 +113,57 @@ var data = [
 		phone: '111-111-1111'
 	},
 ];
+var ContactListView = Backbone.View.extend({
+	id: 'contact-list',
+	$container: $('#contact-list-column'),
+	initialize: function (){
+		this.render();
+
+		//Instatiate listitem views
+		this.collection.forEach(function (i) {
+			new ContactListingView({
+				model: i
+			});
+		});
+	},
+	render: function () {
+		this.$container.append(this.$el);
+	},
+});
+
 var ContactListingView = Backbone.View.extend({
 	className: 'contact-listing row',
 	$container: $('#contact-list'),
 	template: _.template(' \
             <div class="col-xs-10 listing-name"><p><%= name %></p></div> \
-            <div class="edit-contact-name col-xs-2 glyphicon glyphicon-trash"></div>'),
+            <div class="delete-contact col-xs-2 glyphicon glyphicon-trash"></div>'),
+	events: {
+		'click .delete-contact': 'listDelete'
+	},
 	initialize: function (){
 		this.render();
 		this.listenTo(this.model, 'change', this.render);
+		this.listenTo(this.model, 'destroy', this.removeView);
 	},
 	render: function () {
 		var questionHtml = this.template({
-			name: this.model.get('first') + ' ' + this.model.get('last')
+			name: this.model.get('last') + ', ' + this.model.get('first')
 		});
 
 		this.$el.html(questionHtml);
 		this.$container.append(this.$el);
+	},
+	listDelete: function () {
+		this.model.destroy();
+	},
+	removeView: function () {
+		this.remove();
+		this.stopListening();
 	}
 });
 
-var ContactView = Backbone.View.extend({
+var ContactViewportView = Backbone.View.extend({
+	model: Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
 	template: _.template(' \
@@ -162,6 +191,7 @@ var ContactView = Backbone.View.extend({
 		'click .delete': 'delete'
 	},
 	initialize: function () {
+		this.listenTo(this.model, 'destroy', this.newModel);
 		this.render();
 	},
 	render: function (){
@@ -220,10 +250,15 @@ var ContactView = Backbone.View.extend({
 		console.log(this.model);
 
 		this.render();
+	},
+	newModel: function () {
+		var newone = new Contact({first: 'lol', last: 'haha', phone: 123});
+		this.model = newone;
+		this.render();
 	}
 });
 
-var currentCollection = 0;
+var currentModel= 0;
 
 var ContactCollection = Backbone.Collection.extend({
 	model: Contact,
@@ -231,7 +266,12 @@ var ContactCollection = Backbone.Collection.extend({
 		this.reset(data);
 		var self = this;
 		
-		new ContactView({model: self.at(currentCollection)});
+
+		new ContactListView({collection: self});
+		new ContactViewportView({
+			collection: self,
+			model: this.at(currentModel)
+		});
 	}
 });
 $(document).ready(function () {

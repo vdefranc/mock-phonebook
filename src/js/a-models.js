@@ -4,9 +4,8 @@ var Contact = Backbone.Model.extend({
 	phone: 'Enter Number',
 	email: 'Enter Email',
 	initialize: function (){
-		var self = this;
-		new ContactListingView({model: self});
-	},
+		//
+	}
 });
 
 var data = [

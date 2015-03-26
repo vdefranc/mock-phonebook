@@ -39,9 +39,10 @@ module.exports = function ( grunt ) {
     jshint: {
       all: [
         'Gruntfile.js',
-        'src/js/**/!(_intro|_outro)*.js'
+        'dist/<%= pkg.name %>.js'
       ],
       options: {
+        jquery: true,
         curly: true,
         eqeqeq: true,
         immed: true,
@@ -60,6 +61,7 @@ module.exports = function ( grunt ) {
         '-W032': true,  // Disable "Unnecessary semicolon" error
         '-W097': true,  // Disable error when "use strict" in outermost scope
         globals: {
+          _: true,
           Backbone: true,
           console: true,
           document: true,
@@ -126,7 +128,7 @@ module.exports = function ( grunt ) {
   });
   
   grunt.registerTask( 'default', 'build' );
-  grunt.registerTask( 'build', [ 'jshint', 'concat', 'uglify', 'sass' ]);
+  grunt.registerTask( 'build', ['concat', 'uglify', 'sass', 'jshint' ]);
   grunt.registerTask( 'server', [
     'build', 'connect:livereload', 'open', 'watch' ] );
 };

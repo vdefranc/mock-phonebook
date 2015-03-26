@@ -1,4 +1,4 @@
-var currentCollection = 0;
+var currentModel= 0;
 
 var ContactCollection = Backbone.Collection.extend({
 	model: Contact,
@@ -6,6 +6,11 @@ var ContactCollection = Backbone.Collection.extend({
 		this.reset(data);
 		var self = this;
 		
-		new ContactView({model: self.at(currentCollection)});
+
+		new ContactListView({collection: self});
+		new ContactViewportView({
+			collection: self,
+			model: this.at(currentModel)
+		});
 	}
 });
