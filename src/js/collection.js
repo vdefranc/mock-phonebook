@@ -1,5 +1,3 @@
-var currentModel = 0;
-var viewport;
 var ContactCollection = Backbone.Collection.extend({
 	model: Contact,
 	initialize: function () {
@@ -7,15 +5,19 @@ var ContactCollection = Backbone.Collection.extend({
 		var self = this;
 
 		this.on('pickName', this.changeViewportModel, this);
-		
+		this.on('addContact', this.addContact, this);
 
+		new SearchView({collection: self});
 		new ContactListView({collection: self});
 		viewport = new ContactViewportView({
 			collection: self,
 			model: this.at(currentModel)
 		});
 	},
+	addContact: function () {
+
+	},
 	changeViewportModel: function () {
-		viewport.trigger('logsomething');
+		viewport.trigger('changeViewportModel');
 	}
 });

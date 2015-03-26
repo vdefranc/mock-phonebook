@@ -1,3 +1,33 @@
+var SearchView = Backbone.View.extend({
+	el: '.top-bar',
+	template: ' \
+		<div class="col-xs-10">\
+            <div class="search-group has-feedback">\
+                <i class="glyphicon glyphicon-search form-control-feedback"></i>\
+                <input type="search" class="form-control" placeholder="Search..."></input>\
+            </div>\
+        </div>\
+        <button class="btn btn-default" type="button">\
+            <span class="glyphicon glyphicon-plus"></span>\
+        </button>\
+		',
+	initialize: function () {
+		this.render();
+	},
+	render: function () {
+		$(this.el).html(this.template);
+	},
+	events: {
+		'click button': 'addContact'
+	},
+	addContact: function () {
+		if(!editing) {
+			creatingContact = true;
+			this.collection.trigger('addContact');
+		}
+	}
+});
+
 var ContactListView = Backbone.View.extend({
 	id: 'contact-list',
 	$container: $('#contact-list-column'),
@@ -5,17 +35,22 @@ var ContactListView = Backbone.View.extend({
 		this.render();
 		var self = this;
 
+		this.listenTo(this.collection, 'add', this.populate);
 		//Instatiate listitem views
+		this.populate();
+	},
+	render: function () {
+		this.$container.append(this.$el);
+	},
+	populate: function () {
+		var self = this;
 		this.collection.forEach(function (i) {
 			new ContactListingView({
 				model: i,
 				collection: self.collection
 			});
 		});
-	},
-	render: function () {
-		this.$container.append(this.$el);
-	},
+	}
 });
 
 var ContactListingView = Backbone.View.extend({
@@ -32,6 +67,7 @@ var ContactListingView = Backbone.View.extend({
 		this.render();
 		this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
+		this.listenTo(this.collection, 'add', this.removeView);
 	},
 	render: function () {
 		var questionHtml = this.template({
@@ -84,7 +120,8 @@ var ContactViewportView = Backbone.View.extend({
 	},
 	initialize: function () {
 		this.listenTo(this.model, 'destroy', this.newModel);
-		this.on('logsomething', this.changeModel);
+		this.listenTo(this.collection, 'pickName', this.changeModel);
+		this.listenTo(this.collection, 'addContact', this.newModel);
 		this.render();
 	},
 	render: function (){
@@ -133,24 +170,35 @@ var ContactViewportView = Backbone.View.extend({
 			this.render();
 
 			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
+
+			if (creatingContact) {
+				this.collection.add(this.model);
+				console.log(this.collection);
+				creatingContact = false;
+			}
+
 			editing = false;
 		}
 	},
 	delete: function () {
 		this.model.destroy();
 
-		this.model = new Contact();
-		console.log(this.model);
-
-		this.render();
+		this.newModel();
 	},
 	newModel: function () {
-		var newone = new Contact({first: 'lol', last: 'haha', phone: 123});
-		this.model = newone;
-		this.render();
+		this.model = new Contact({
+			first: 'New',
+			last: 'Contact',
+			phone: 'Enter Number',
+			email: 'Enter Email'
+		});
+		this.stopListening();
+		this.initialize();
+		this.edit();
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
-		this.render();
+		this.stopListening();
+		this.initialize();
 	}
 });
