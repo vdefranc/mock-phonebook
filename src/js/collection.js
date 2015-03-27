@@ -6,6 +6,7 @@ var ContactCollection = Backbone.Collection.extend({
 
 		this.on('pickName', this.changeViewportModel, this);
 		this.on('addContact', this.addContact, this);
+		this.on('remove', this.findIndex, this);
 
 		new SearchView({collection: self});
 		new ContactListView({collection: self});
@@ -24,5 +25,10 @@ var ContactCollection = Backbone.Collection.extend({
 	},
 	changeViewportModel: function () {
 		viewport.trigger('changeViewportModel');
+	},
+	findIndex: function () {
+		findIndexAfterDelete(this);
+
+		this.at(indexAfterDelete).trigger('pick')
 	}
 });

@@ -3,8 +3,11 @@ var Contact = Backbone.Model.extend({
 	last: 'Contact',
 	phone: 'Enter Number',
 	email: 'Enter Email',
-	initialize: function (){
-		//
+	initialize: function () {
+		this.on('destroy', this.onDestroy, this);
+	},
+	onDestroy: function () {
+		deletedIndex = this.collection.indexOf(this);
 	}
 });
 

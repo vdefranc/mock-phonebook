@@ -6,13 +6,36 @@ var currentContact = 0,
 var currentModel = 0;
 var viewport;
 var creatingContact = false;
+var deletedIndex;
+var indexAfterDelete = 0;
+var findIndexAfterDelete = function (collection) {
+
+		if (!collection.at(deletedIndex)) {
+			if(deletedIndex === 0) {
+				collection.trigger('addContact');
+				console.log('ahh');
+				indexAfterDelete = 0;
+			} else {
+				indexAfterDelete = deletedIndex - 1;
+			}
+		} else {
+			indexAfterDelete = deletedIndex;
+		}
+
+		console.log('deleted ', deletedIndex);
+		console.log('index after ', indexAfterDelete);
+		console.log(collection);
+}
 var Contact = Backbone.Model.extend({
 	first: 'New',
 	last: 'Contact',
 	phone: 'Enter Number',
 	email: 'Enter Email',
-	initialize: function (){
-		//
+	initialize: function () {
+		this.on('destroy', this.onDestroy, this);
+	},
+	onDestroy: function () {
+		deletedIndex = this.collection.indexOf(this);
 	}
 });
 
@@ -108,6 +131,7 @@ var ContactListingView = Backbone.View.extend({
 		this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
 		this.listenTo(this.collection, 'add', this.removeView);
+		this.listenTo(this.model, 'pick', this.pickName);
 	},
 	render: function () {
 		var questionHtml = this.template({
@@ -126,6 +150,7 @@ var ContactListingView = Backbone.View.extend({
 	},
 	pickName: function () {
 		currentModel = this.model.cid;
+		this.$el.css('color', 'red');
 		this.collection.trigger('pickName');
 	}
 });
@@ -271,7 +296,7 @@ var ContactViewportView = Backbone.View.extend({
 	delete: function () {
 		this.model.destroy();
 
-		this.newModel();
+		this.collection.trigger('addContact');
 	},
 	newModel: function () {
 		this.model = currentModel;
@@ -283,9 +308,11 @@ var ContactViewportView = Backbone.View.extend({
 		this.subRender();
 	},
 	subRender: function () {
-		var text = this.model.get('first') + ' ' + this.model.get('last');
+		if(this.model) {
+			var text = this.model.get('first') + ' ' + this.model.get('last');
 
-		this.$el.find('h3').html(text);
+			this.$el.find('h3').html(text);
+		}
 	}
 });
 
@@ -297,6 +324,7 @@ var ContactCollection = Backbone.Collection.extend({
 
 		this.on('pickName', this.changeViewportModel, this);
 		this.on('addContact', this.addContact, this);
+		this.on('remove', this.findIndex, this);
 
 		new SearchView({collection: self});
 		new ContactListView({collection: self});
@@ -315,6 +343,11 @@ var ContactCollection = Backbone.Collection.extend({
 	},
 	changeViewportModel: function () {
 		viewport.trigger('changeViewportModel');
+	},
+	findIndex: function () {
+		findIndexAfterDelete(this);
+
+		this.at(indexAfterDelete).trigger('pick')
 	}
 });
 $(document).ready(function () {

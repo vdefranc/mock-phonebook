@@ -68,6 +68,7 @@ var ContactListingView = Backbone.View.extend({
 		this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
 		this.listenTo(this.collection, 'add', this.removeView);
+		this.listenTo(this.model, 'pick', this.pickName);
 	},
 	render: function () {
 		var questionHtml = this.template({
@@ -86,6 +87,7 @@ var ContactListingView = Backbone.View.extend({
 	},
 	pickName: function () {
 		currentModel = this.model.cid;
+		this.$el.css('color', 'red');
 		this.collection.trigger('pickName');
 	}
 });
@@ -231,7 +233,7 @@ var ContactViewportView = Backbone.View.extend({
 	delete: function () {
 		this.model.destroy();
 
-		this.newModel();
+		this.collection.trigger('addContact');
 	},
 	newModel: function () {
 		this.model = currentModel;
@@ -243,8 +245,10 @@ var ContactViewportView = Backbone.View.extend({
 		this.subRender();
 	},
 	subRender: function () {
-		var text = this.model.get('first') + ' ' + this.model.get('last');
+		if(this.model) {
+			var text = this.model.get('first') + ' ' + this.model.get('last');
 
-		this.$el.find('h3').html(text);
+			this.$el.find('h3').html(text);
+		}
 	}
 });
