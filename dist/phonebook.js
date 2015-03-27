@@ -76,7 +76,7 @@ var ContactListView = Backbone.View.extend({
 		var self = this;
 
 		this.listenTo(this.collection, 'add', this.populate);
-		//Instatiate listitem views
+
 		this.populate();
 	},
 	render: function () {
@@ -130,41 +130,25 @@ var ContactListingView = Backbone.View.extend({
 	}
 });
 
-var ContactViewportView = Backbone.View.extend({
-	model: Contact,
-	className: 'contact-info row',
-	$container: $('#contact-view'),
-	template: _.template(' \
-            <div class="col-sm-12">\
-                <h3><%= first %> <%= last %></h3>\
-                 <div class="contact-view-button-wrapper">\
-                    <button class="btn btn-default edit" type="button">\
-                        <span class="glyphicon glyphicon-edit"></span>\
-                    </button>\
-                    <button class="btn btn-default delete" type="button">\
-                        <span class="glyphicon glyphicon-trash"></span>\
-                    </button>\
-                </div>\
-                <div class="contact-fields">\
-                    <form>\
-                    <p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
-                    <p>Last Name:<input name="last" type="text" value="<%= last %>"" readonly></p>\
-                    <p>Phone Number:<input name="phone" type="text" value="<%= phone %>"" readonly></p>\
-                </form>\
-                </div>\
-            </div>\
+var ContactViewportChildView = Backbone.View.extend({
+	template: _.template('\
+		<form>\
+			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
+			<p>Last Name:<input name="last" type="text" value="<%= last %>"" readonly></p>\
+			<p>Phone Number:<input name="phone" type="text" value="<%= phone %>"" readonly></p>\
+		</form>\
 	'),
 	events: {
-		'click .edit': 'edit',
-		'click .delete': 'delete'
+		// 'click .edit': 'edit',
 	},
 	initialize: function () {
-		this.listenTo(this.model, 'destroy', this.newModel);
-		this.listenTo(this.collection, 'pickName', this.changeModel);
-		this.listenTo(this.collection, 'addContact', this.newModel);
 		this.render();
+
+		this.listenTo(this.collection, 'pickName', this.changeModel, this);
+		this.listenTo(this.collection, 'addContact', this.newModel, this);
+		this.listenTo(this.collection, 'edit', this.edit, this);
 	},
-	render: function (){
+	render: function () {
 		var modelData = {
 			first: this.model.get('first'),
 			last: this.model.get('last'),
@@ -178,7 +162,15 @@ var ContactViewportView = Backbone.View.extend({
 		});
 
 		this.$el.html(questionHtml);
-		this.$container.append(this.$el);
+	},
+	changeModel: function () {
+		this.model = this.collection.get({cid: currentModel});
+		this.render();
+	},
+	newModel: function () {
+		this.model = currentModel;
+		this.render();
+		this.edit();
 	},
 	edit: function () {
 		var editButton = $('.edit').find('span');
@@ -213,12 +205,68 @@ var ContactViewportView = Backbone.View.extend({
 
 			if (creatingContact) {
 				this.collection.add(this.model);
-				console.log(this.collection);
 				creatingContact = false;
 			}
 
 			editing = false;
 		}
+	},
+});
+
+var ContactViewportView = Backbone.View.extend({
+	model: Contact,
+	className: 'contact-info row',
+	$container: $('#contact-view'),
+	template: _.template(' \
+            <div class="col-sm-12">\
+                <h3><%= first %> <%= last %></h3>\
+                 <div class="contact-view-button-wrapper">\
+                    <button class="btn btn-default edit" type="button">\
+                        <span class="glyphicon glyphicon-edit"></span>\
+                    </button>\
+                    <button class="btn btn-default delete" type="button">\
+                        <span class="glyphicon glyphicon-trash"></span>\
+                    </button>\
+                </div>\
+                <div class="contact-fields">\
+                </div>\
+            </div>\
+	'),
+	events: {
+		'click .edit': 'edit',
+		'click .delete': 'delete'
+	},
+	initialize: function () {
+		var self = this;
+
+		this.listenTo(this.model, 'destroy', this.newModel);
+		this.listenTo(this.collection, 'pickName', this.changeModel);
+		this.listenTo(this.collection, 'addContact', this.newModel);
+		this.listenTo(this.model, 'change', this.subRender);
+		this.render();
+
+		new ContactViewportChildView({
+			model: self.model,
+			collection: self.collection,
+			el: '.contact-fields',
+		});
+	},
+	render: function (){
+		var modelData = {
+			first: this.model.get('first'),
+			last: this.model.get('last')
+		};
+
+		var questionHtml = this.template({
+			first: this.model.get('first'),
+			last: this.model.get('last')
+		});
+
+		this.$el.html(questionHtml);
+		this.$container.append(this.$el);
+	},
+	edit: function () {
+		this.collection.trigger('edit');
 	},
 	delete: function () {
 		this.model.destroy();
@@ -226,20 +274,18 @@ var ContactViewportView = Backbone.View.extend({
 		this.newModel();
 	},
 	newModel: function () {
-		this.model = new Contact({
-			first: 'New',
-			last: 'Contact',
-			phone: 'Enter Number',
-			email: 'Enter Email'
-		});
-		this.stopListening();
-		this.initialize();
-		this.edit();
+		this.model = currentModel;
+
+		this.subRender();
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
-		this.stopListening();
-		this.initialize();
+		this.subRender();
+	},
+	subRender: function () {
+		var text = this.model.get('first') + ' ' + this.model.get('last');
+
+		this.$el.find('h3').html(text);
 	}
 });
 
@@ -260,7 +306,12 @@ var ContactCollection = Backbone.Collection.extend({
 		});
 	},
 	addContact: function () {
-
+		currentModel = new Contact({
+			first: 'New',
+			last: 'Contact',
+			phone: 'Enter Number',
+			email: 'Enter Email'
+		});
 	},
 	changeViewportModel: function () {
 		viewport.trigger('changeViewportModel');

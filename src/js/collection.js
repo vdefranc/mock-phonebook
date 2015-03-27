@@ -15,7 +15,12 @@ var ContactCollection = Backbone.Collection.extend({
 		});
 	},
 	addContact: function () {
-
+		currentModel = new Contact({
+			first: 'New',
+			last: 'Contact',
+			phone: 'Enter Number',
+			email: 'Enter Email'
+		});
 	},
 	changeViewportModel: function () {
 		viewport.trigger('changeViewportModel');
