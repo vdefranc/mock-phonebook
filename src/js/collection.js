@@ -3,12 +3,12 @@ var ContactCollection = Backbone.Collection.extend({
 	initialize: function () {
 		this.reset(data);
 		var self = this;
-
+		currentModel = this.at(0).cid;
 		this.on('pickName', this.changeViewportModel, this);
 		this.on('addContact', this.addContact, this);
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
-		this.on('edited', this.pickContact, this);
+		this.on('edited searched', this.pickContact, this);
 
 		new SearchView({collection: self});
 		new ContactListView({collection: self});

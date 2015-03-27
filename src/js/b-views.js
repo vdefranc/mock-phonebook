@@ -47,10 +47,8 @@ var ContactListView = Backbone.View.extend({
 		this.$container.append(this.$el);
 	},
 	populate: function () {
-		console.log('populate');
 		var self = this;
-		var list = this.collection.search();
-		console.log('list: ', list)
+
 		this.collection.search($('.searching').val()).forEach(function (i) {
 			new ContactListingView({
 				model: i,
