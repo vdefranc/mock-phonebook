@@ -87,7 +87,7 @@ var ContactListingView = Backbone.View.extend({
 		this.$el.html(questionHtml);
 		this.$container.append(this.$el);
 	},
-	listDelete: function () {
+	listDelete: function (e) {
 		this.model.destroy();
 	},
 	removeView: function () {

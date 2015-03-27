@@ -1,7 +1,14 @@
 var ContactCollection = Backbone.Collection.extend({
 	model: Contact,
+	localStorage: new Backbone.LocalStorage("phonebook-store"),
 	initialize: function () {
-		this.reset(data);
+
+		// this.reset(data);
+		// this.forEach(function  (i) {
+		// 	i.save();
+		// });
+		this.fetch();
+
 		var self = this;
 		currentModel = this.at(0).cid;
 		this.on('pickName', this.changeViewportModel, this);
@@ -9,12 +16,19 @@ var ContactCollection = Backbone.Collection.extend({
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
 		this.on('edited searched', this.pickContact, this);
+		this.on('change', this.saveit);
+		this.on('add', this.saveit);
 
 		new SearchView({collection: self});
 		new ContactListView({collection: self});
 		viewport = new ContactViewportView({
 			collection: self,
 			model: this.at(0)
+		});
+	},
+	saveit: function () {
+		this.forEach(function  (i) {
+			i.save();
 		});
 	},
 	searchedList: this,
