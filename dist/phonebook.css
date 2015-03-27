@@ -52,7 +52,7 @@ body {
       margin-bottom: 0; }
   .contact-listing:hover {
     cursor: pointer; }
-  .contact-listing .listing-name:hover {
+  .contact-listing.picked {
     background-color: lightblue; }
   .contact-listing .glyphicon {
     text-align: center; }
@@ -62,6 +62,9 @@ body {
       background-color: red; }
   .contact-listing:nth-child(even) {
     background: #F7F7F7 url("http://www.chronicle.com/img/photos/biz/texture_diagonal_gray.gif") repeat; }
+    .contact-listing:nth-child(even).picked {
+      background: none;
+      background-color: lightblue; }
 
 #contact-view {
   height: 100%;

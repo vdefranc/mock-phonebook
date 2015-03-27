@@ -80,12 +80,10 @@ body {
 	&:hover {
 		cursor: pointer;
 	}
-
-	.listing-name {
-		&:hover {
-			background-color: lightblue;
-		}
+	&.picked {
+		background-color: lightblue;
 	}
+
 	.glyphicon {
 		text-align: center;
 
@@ -99,6 +97,10 @@ body {
 
 	&:nth-child(even) {
 		background: #F7F7F7 url('http://www.chronicle.com/img/photos/biz/texture_diagonal_gray.gif') repeat;
+		&.picked {
+			background: none;
+			background-color: lightblue;
+		}
 	}
 }
 

@@ -22,7 +22,6 @@ var SearchView = Backbone.View.extend({
 	},
 	addContact: function () {
 		if(!editing) {
-			creatingContact = true;
 			this.collection.trigger('addContact');
 		}
 	}
@@ -36,6 +35,7 @@ var ContactListView = Backbone.View.extend({
 		var self = this;
 
 		this.listenTo(this.collection, 'add', this.populate);
+		this.listenTo(this.collection, 'edited', this.populate);
 
 		this.populate();
 	},
@@ -65,10 +65,14 @@ var ContactListingView = Backbone.View.extend({
 	},
 	initialize: function (){
 		this.render();
-		this.listenTo(this.model, 'change', this.render);
+		//this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
-		this.listenTo(this.collection, 'add', this.removeView);
+		this.listenTo(this.collection, 'add edited', this.removeView);
 		this.listenTo(this.model, 'pick', this.pickName);
+
+		if (this.model.cid == currentModel) {
+			this.$el.addClass('picked');
+		}
 	},
 	render: function () {
 		var questionHtml = this.template({
@@ -87,7 +91,8 @@ var ContactListingView = Backbone.View.extend({
 	},
 	pickName: function () {
 		currentModel = this.model.cid;
-		this.$el.css('color', 'red');
+		$('.contact-listing').removeClass('picked');
+		this.$el.addClass('picked');
 		this.collection.trigger('pickName');
 	}
 });
@@ -101,7 +106,6 @@ var ContactViewportChildView = Backbone.View.extend({
 		</form>\
 	'),
 	events: {
-		// 'click .edit': 'edit',
 	},
 	initialize: function () {
 		this.render();
@@ -161,7 +165,6 @@ var ContactViewportChildView = Backbone.View.extend({
 				phone: vals[2]
 			});
 
-			this.render();
 
 			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
 
@@ -170,6 +173,9 @@ var ContactViewportChildView = Backbone.View.extend({
 				creatingContact = false;
 			}
 
+			this.render();
+			currentModel = this.model.cid;
+			this.collection.trigger('edited');
 			editing = false;
 		}
 	},
@@ -201,10 +207,10 @@ var ContactViewportView = Backbone.View.extend({
 	initialize: function () {
 		var self = this;
 
-		this.listenTo(this.model, 'destroy', this.newModel);
+		//this.listenTo(this.model, 'destroy', this.newModel);
 		this.listenTo(this.collection, 'pickName', this.changeModel);
 		this.listenTo(this.collection, 'addContact', this.newModel);
-		this.listenTo(this.model, 'change', this.subRender);
+		this.listenTo(this.collection, 'add change', this.subRender);
 		this.render();
 
 		new ContactViewportChildView({
@@ -231,13 +237,13 @@ var ContactViewportView = Backbone.View.extend({
 		this.collection.trigger('edit');
 	},
 	delete: function () {
-		this.model.destroy();
-
-		this.collection.trigger('addContact');
+		if(!editing) {
+			this.model.destroy();
+		}
 	},
 	newModel: function () {
 		this.model = currentModel;
-
+		creatingContact = true;
 		this.subRender();
 	},
 	changeModel: function () {
@@ -245,10 +251,8 @@ var ContactViewportView = Backbone.View.extend({
 		this.subRender();
 	},
 	subRender: function () {
-		if(this.model) {
 			var text = this.model.get('first') + ' ' + this.model.get('last');
 
 			this.$el.find('h3').html(text);
-		}
 	}
 });
