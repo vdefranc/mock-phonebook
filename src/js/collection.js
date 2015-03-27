@@ -17,6 +17,15 @@ var ContactCollection = Backbone.Collection.extend({
 			model: this.at(0)
 		});
 	},
+	searchedList: this,
+	search: function (query) {
+		if (query == '') return this;
+ 
+		var pattern = new RegExp(query, 'gi');
+		return _( this.filter(function(data) {
+		  	return pattern.test(data.get("last") + data.get("first"));
+		}) );
+	},
 	comparator: function(contact) {
 		var name = contact.get("last") + contact.get("first");
 

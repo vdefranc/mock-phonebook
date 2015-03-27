@@ -4,7 +4,7 @@ var SearchView = Backbone.View.extend({
 		<div class="col-xs-10">\
             <div class="search-group has-feedback">\
                 <i class="glyphicon glyphicon-search form-control-feedback"></i>\
-                <input type="search" class="form-control" placeholder="Search..."></input>\
+                <input type="search" class="form-control searching" placeholder="Search..."></input>\
             </div>\
         </div>\
         <button class="btn btn-default" type="button">\
@@ -18,12 +18,16 @@ var SearchView = Backbone.View.extend({
 		$(this.el).html(this.template);
 	},
 	events: {
-		'click button': 'addContact'
+		'click button': 'addContact',
+		"keyup .searching" : "searchList",
 	},
 	addContact: function () {
 		if(!editing) {
 			this.collection.trigger('addContact');
 		}
+	},
+	searchList: function (e) {
+		this.collection.trigger('searched');
 	}
 });
 
@@ -35,7 +39,7 @@ var ContactListView = Backbone.View.extend({
 		var self = this;
 
 		this.listenTo(this.collection, 'add', this.populate);
-		this.listenTo(this.collection, 'edited', this.populate);
+		this.listenTo(this.collection, 'searched edited', this.populate);
 
 		this.populate();
 	},
@@ -43,8 +47,11 @@ var ContactListView = Backbone.View.extend({
 		this.$container.append(this.$el);
 	},
 	populate: function () {
+		console.log('populate');
 		var self = this;
-		this.collection.forEach(function (i) {
+		var list = this.collection.search();
+		console.log('list: ', list)
+		this.collection.search($('.searching').val()).forEach(function (i) {
 			new ContactListingView({
 				model: i,
 				collection: self.collection
@@ -67,7 +74,7 @@ var ContactListingView = Backbone.View.extend({
 		this.render();
 		//this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
-		this.listenTo(this.collection, 'add edited', this.removeView);
+		this.listenTo(this.collection, 'add edited searched', this.removeView);
 		this.listenTo(this.model, 'pick', this.pickName);
 
 		if (this.model.cid == currentModel) {
