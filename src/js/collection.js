@@ -35,10 +35,10 @@ var ContactCollection = Backbone.Collection.extend({
 	search: function (query) {
 		if (query == '') return this;
  
-		var pattern = new RegExp(query, 'gi');
-		return _( this.filter(function(data) {
-		  	return pattern.test(data.get("last") + data.get("first"));
-		}) );
+		var pattern = new RegExp(query, 'i');
+		return this.filter(function(data) {
+		  	return pattern.test(data.get("last") + ' ' + data.get("first"));
+		} );
 	},
 	comparator: function(contact) {
 		var name = contact.get("last") + contact.get("first");
@@ -46,12 +46,7 @@ var ContactCollection = Backbone.Collection.extend({
 		return name.toLowerCase();
 	},
 	addContact: function () {
-		currentModel = new Contact({
-			first: 'New',
-			last: 'Contact',
-			phone: 'Enter Number',
-			email: 'Enter Email'
-		});
+		currentModel = new Contact({});
 
 		$('.contact-listing').removeClass('picked');
 

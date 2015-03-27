@@ -3,10 +3,8 @@ $(document).ready(function () {
 
 
 	resizeBar();
+	window.onresize = resizeBar;
 });
-
-
-window.onresize = resizeBar;
 
 })();
 

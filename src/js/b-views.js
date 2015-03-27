@@ -256,8 +256,8 @@ var ContactViewportView = Backbone.View.extend({
 		this.subRender();
 	},
 	subRender: function () {
-			var text = this.model.get('first') + ' ' + this.model.get('last');
-
-			this.$el.find('h3').html(text);
+		var text = this.model.get('first') ? this.model.get('first') + ' ' + this.model.get('last') : 'New Contact';
+			
+		this.$el.find('h3').html(text);
 	}
 });
