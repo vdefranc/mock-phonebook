@@ -31,10 +31,17 @@ body {
 #contact-list-column {
   border-right: 1px solid #ccc;
   height: 100%;
-  overflow-y: scroll; }
+  overflow-y: scroll;
+  position: relative;
+  z-index: 1;
+  padding-top: 4.5em; }
   #contact-list-column .top-bar {
     padding: 1em 1em 1em 0em;
-    border-bottom: 1px solid #ccc; }
+    border-bottom: 1px solid #ccc;
+    position: fixed;
+    top: 0;
+    background-color: white;
+    z-index: 2; }
     #contact-list-column .top-bar button {
       float: right;
       height: 2.5em; }
