@@ -81,7 +81,8 @@ App.List = Backbone.Collection.extend({
 		$('#contact-view').animate({left: "100%"}, 500, function (){
 			$(this).hide();
 		});
-		$('#contact-list-column, .top-bar').show();
-		$('#contact-list-column, .top-bar').animate({left: "0"}, 500);
+		$('#contact-list-column').show();
+		$('#contact-list-column').animate({left: "0"}, 500);
+		$('.top-bar').css('width', '100%');
 	}
 });

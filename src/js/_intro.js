@@ -125,6 +125,14 @@ function checkScreenSize (collection) {
 		isMobile = true;
 		$('.picked').removeClass('picked')
 		$('.glyphicon-menu-left').closest('button').show();
+
+		if($('#contact-view').is(':visible')){
+			$('#contact-view').css({
+				'display': 'block',
+				'left': '100%'
+			});
+		}
+
 	} else {
 		isMobile = false;
 		if(!$('#contact-list-column').is(':visible')){
@@ -132,7 +140,12 @@ function checkScreenSize (collection) {
 				'display': 'block',
 				'left': '0%'
 			});
-			console.log('showing!')
+		}
+		if(!$('#contact-view').is(':visible')){
+			$('#contact-view').css({
+				'display': 'block',
+				'left': '0%'
+			});
 		}
 		collection.get({cid: currentModel}).trigger('notMobile');
 		$('.glyphicon-menu-left').closest('button').hide();

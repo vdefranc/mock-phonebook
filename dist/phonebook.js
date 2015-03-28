@@ -125,6 +125,14 @@ function checkScreenSize (collection) {
 		isMobile = true;
 		$('.picked').removeClass('picked')
 		$('.glyphicon-menu-left').closest('button').show();
+
+		if($('#contact-view').is(':visible')){
+			$('#contact-view').css({
+				'display': 'block',
+				'left': '100%'
+			});
+		}
+
 	} else {
 		isMobile = false;
 		if(!$('#contact-list-column').is(':visible')){
@@ -132,7 +140,12 @@ function checkScreenSize (collection) {
 				'display': 'block',
 				'left': '0%'
 			});
-			console.log('showing!')
+		}
+		if(!$('#contact-view').is(':visible')){
+			$('#contact-view').css({
+				'display': 'block',
+				'left': '0%'
+			});
 		}
 		collection.get({cid: currentModel}).trigger('notMobile');
 		$('.glyphicon-menu-left').closest('button').hide();
@@ -270,7 +283,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		<div id="validationContainer"> \
 		<p class="validationMessage">Please enter a valid first name.</p> \
 		<p class="validationMessage">Please enter a valid last name.</p> \
-		<p class="validationMessage">Please enter a valid phone number.</p> \
+		<p class="validationMessage">Please enter a valid 10-digit phone number.</p> \
 		</div> \
 	'),
 	events: {
@@ -290,6 +303,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		});
 
 		this.$el.html(info);
+		this.$el.find('input[name="phone"]').mask('(000) 000-0000');
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
@@ -316,7 +330,9 @@ App.ViewportInfoView = Backbone.View.extend({
 				last: vals[1],
 				phone: vals[2]
 			});
-
+$('.phone').text(function(i, text) {
+    return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+});
 			editButton.removeClass('glyphicon-floppy-save');
 
 			if (creatingContact) {
@@ -341,10 +357,10 @@ App.ViewportInfoView = Backbone.View.extend({
 		}
 
 		function validate (vals) {
-			var phoneDigits = vals[2].split('-').join('');
+			var phoneDigits = vals[2].split(/[-()\s]/gi).join('');
 			var first = /^[a-zA-Z]+$/.test(vals[0]),
 				last = /^[a-zA-Z]+$/.test(vals[1]),
-				phone = /^\d+$/.test(phoneDigits),
+				phone = /^\d{10}$/.test(phoneDigits),
 				testArray = [first, last, phone],
 				allPass = first && last && phone;
 
@@ -534,8 +550,9 @@ App.List = Backbone.Collection.extend({
 		$('#contact-view').animate({left: "100%"}, 500, function (){
 			$(this).hide();
 		});
-		$('#contact-list-column, .top-bar').show();
-		$('#contact-list-column, .top-bar').animate({left: "0"}, 500);
+		$('#contact-list-column').show();
+		$('#contact-list-column').animate({left: "0"}, 500);
+		$('.top-bar').css('width', '100%');
 	}
 });
 $(document).ready(function () {
@@ -548,8 +565,8 @@ $(document).ready(function () {
 	checkScreenSize(collection);
 	
 	$(window).resize(function() {
-		resizeSearchBar();
 		checkScreenSize(collection);
+		resizeSearchBar();
 	});
 
 });

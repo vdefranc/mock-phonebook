@@ -8,8 +8,8 @@ $(document).ready(function () {
 	checkScreenSize(collection);
 	
 	$(window).resize(function() {
-		resizeSearchBar();
 		checkScreenSize(collection);
+		resizeSearchBar();
 	});
 
 });

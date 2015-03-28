@@ -8,7 +8,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		<div id="validationContainer"> \
 		<p class="validationMessage">Please enter a valid first name.</p> \
 		<p class="validationMessage">Please enter a valid last name.</p> \
-		<p class="validationMessage">Please enter a valid phone number.</p> \
+		<p class="validationMessage">Please enter a valid 10-digit phone number.</p> \
 		</div> \
 	'),
 	events: {
@@ -28,6 +28,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		});
 
 		this.$el.html(info);
+		this.$el.find('input[name="phone"]').mask('(000) 000-0000');
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
@@ -54,7 +55,9 @@ App.ViewportInfoView = Backbone.View.extend({
 				last: vals[1],
 				phone: vals[2]
 			});
-
+$('.phone').text(function(i, text) {
+    return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+});
 			editButton.removeClass('glyphicon-floppy-save');
 
 			if (creatingContact) {
@@ -79,10 +82,10 @@ App.ViewportInfoView = Backbone.View.extend({
 		}
 
 		function validate (vals) {
-			var phoneDigits = vals[2].split('-').join('');
+			var phoneDigits = vals[2].split(/[-()\s]/gi).join('');
 			var first = /^[a-zA-Z]+$/.test(vals[0]),
 				last = /^[a-zA-Z]+$/.test(vals[1]),
-				phone = /^\d+$/.test(phoneDigits),
+				phone = /^\d{10}$/.test(phoneDigits),
 				testArray = [first, last, phone],
 				allPass = first && last && phone;
 

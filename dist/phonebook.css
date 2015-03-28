@@ -41,9 +41,9 @@ body {
     border-bottom: 1px solid #ccc;
     position: absolute;
     top: 0;
-    left: 0;
     background-color: white;
-    z-index: 2; }
+    z-index: 2;
+    width: 100%; }
     #contact-list-column .top-bar button {
       float: right;
       height: 2.5em; }
