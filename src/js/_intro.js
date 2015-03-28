@@ -3,6 +3,7 @@ var phonebook = window.phonebook || (function () {
 var App = {},
 	deletedIndex,
 	viewport,
+	isMobile = true,
 	creatingContact = false,
 	currentModel = 'c01',
 	editing = false,
@@ -100,10 +101,9 @@ var App = {},
 		}
 	];
 
-
 function findIndexAfterDelete (collection) {
 	var currentContact;
-	
+
 	if (!collection.at(deletedIndex)) {
 
 		if (deletedIndex === 0) {
@@ -118,4 +118,23 @@ function findIndexAfterDelete (collection) {
 	}
 
 	currentModel = collection.at(currentContact);
+}
+
+function checkScreenSize (collection) {
+	if($(window).width() <= 525 ) {
+		isMobile = true;
+		$('.picked').removeClass('picked')
+		$('.glyphicon-menu-left').closest('button').show();
+	} else {
+		isMobile = false;
+		if(!$('#contact-list-column').is(':visible')){
+			$('#contact-list-column').css({
+				'display': 'block',
+				'left': '0%'
+			});
+			console.log('showing!')
+		}
+		collection.get({cid: currentModel}).trigger('notMobile');
+		$('.glyphicon-menu-left').closest('button').hide();
+	}
 }

@@ -27,7 +27,8 @@ body {
     left: 0; }
 
   #contact-view {
-    left: 100%; } }
+    left: 100%;
+    display: none; } }
 #contact-list-column {
   border-right: 1px solid #ccc;
   height: 100%;
@@ -38,8 +39,9 @@ body {
   #contact-list-column .top-bar {
     padding: 1em 1em 1em 0em;
     border-bottom: 1px solid #ccc;
-    position: fixed;
+    position: absolute;
     top: 0;
+    left: 0;
     background-color: white;
     z-index: 2; }
     #contact-list-column .top-bar button {
@@ -47,6 +49,9 @@ body {
       height: 2.5em; }
       #contact-list-column .top-bar button:focus {
         outline: none; }
+    @media (max-width: 525px) {
+      #contact-list-column .top-bar {
+        width: 103%; } }
   #contact-list-column input[type="textbox"] {
     width: 100%; }
 
@@ -117,5 +122,9 @@ body {
       margin-bottom: 0.3em;
       margin-right: 0.3em;
       float: left; } }
+  @media (max-width: 525px) {
+    .contact-view-button-wrapper {
+      width: 100%;
+      margin-bottom: 1em; } }
 
 /*# sourceMappingURL=phonebook.css.map */

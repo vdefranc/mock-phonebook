@@ -37,6 +37,7 @@ body {
 	}
 	#contact-view {
 		left: 100%;
+		display: none;
 	}
 }
 
@@ -52,8 +53,9 @@ body {
 	.top-bar {
 		padding: 1em 1em 1em 0em;
 		border-bottom: 1px solid #ccc;
-		position: fixed;
+		position: absolute;
 		top: 0;
+		left: 0;
 		background-color: white;
 		z-index: 2;
 
@@ -64,6 +66,10 @@ body {
 			&:focus {
 				outline: none;
 			}
+		}
+
+		@media (max-width: $mobile) {
+			width: 103%;
 		}
 	}
 
@@ -162,6 +168,7 @@ body {
 
 }
 
+
 .contact-view-button-wrapper {
 	text-align: right;
 	float:right;
@@ -175,7 +182,7 @@ body {
 			outline: none !important;
 		}
 	}
-
+ 
 	@media (max-width: 780px) {
 
 		button {
@@ -183,5 +190,9 @@ body {
 			margin-right: 0.3em;
 			float: left;
 		}
+	}
+	@media (max-width: $mobile) {
+		width: 100%;
+		margin-bottom: 1em;
 	}
 }

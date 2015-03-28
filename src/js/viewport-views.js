@@ -34,7 +34,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		this.render();
 	},
 	edit: function () {
-		var editButton = $('.edit').find('span'),
+		var editButton = $('.button-edit').find('span'),
 			inputs = $('.info-input'),
 			vals = [];
 
@@ -119,22 +119,26 @@ App.ViewportView = Backbone.View.extend({
 	$container: $('#contact-view'),
 	template: _.template(' \
             <div class="col-sm-12">\
-                <h3><%= first %> <%= last %></h3>\
                  <div class="contact-view-button-wrapper">\
-                    <button class="btn btn-default edit" type="button">\
+	                <button class="btn btn-default button-back" type="button">\
+	                        <span class="glyphicon glyphicon-menu-left"></span>\
+		            </button>\
+                    <button class="btn btn-default button-edit" type="button">\
                         <span class="glyphicon glyphicon-pencil"></span>\
                     </button>\
-                    <button class="btn btn-default delete" type="button">\
+                    <button class="btn btn-default button-delete" type="button">\
                         <span class="glyphicon glyphicon-trash"></span>\
                     </button>\
                 </div>\
+                <h3><%= first %> <%= last %></h3>\
                 <div class="contact-fields">\
                 </div>\
             </div>\
 	'),
 	events: {
-		'click .edit': 'edit',
-		'click .delete': 'delete'
+		'click .button-edit': 'edit',
+		'click .button-delete': 'delete',
+		'click .button-back': 'showList'
 	},
 	initialize: function () {
 		var self = this;
@@ -180,5 +184,8 @@ App.ViewportView = Backbone.View.extend({
 		var text = this.model.get('first') ? this.model.get('first') + ' ' + this.model.get('last') : 'New Contact';
 			
 		this.$el.find('h3').html(text);
+	},
+	showList: function () {
+		this.collection.trigger('showList');
 	}
 });

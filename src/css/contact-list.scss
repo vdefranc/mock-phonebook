@@ -10,8 +10,9 @@
 	.top-bar {
 		padding: 1em 1em 1em 0em;
 		border-bottom: 1px solid #ccc;
-		position: fixed;
+		position: absolute;
 		top: 0;
+		left: 0;
 		background-color: white;
 		z-index: 2;
 
@@ -22,6 +23,10 @@
 			&:focus {
 				outline: none;
 			}
+		}
+
+		@media (max-width: $mobile) {
+			width: 103%;
 		}
 	}
 

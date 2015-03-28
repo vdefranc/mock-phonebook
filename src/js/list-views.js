@@ -37,10 +37,11 @@ App.ListingView = Backbone.View.extend({
 	initialize: function (){
 		this.render();
 		this.listenTo(this.model, 'destroy', this.removeView);
+		this.listenTo(this.model, 'notMobile', this.notMobile);
 		this.listenTo(this.model, 'pick', this.pickName);
 		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
-		if (this.model.cid === currentModel) {
+		if (this.model.cid === currentModel && !isMobile) {
 			this.$el.addClass('picked');
 		}
 	},
@@ -55,10 +56,19 @@ App.ListingView = Backbone.View.extend({
 	listDelete: function (e) {
 		this.model.destroy();
 	},
+	notMobile: function () {
+		this.$el.addClass('picked');;
+	},
 	pickName: function () {
 		currentModel = this.model.cid;
-		$('.picked').removeClass('picked');
-		this.$el.addClass('picked');
+
+		if(!isMobile) {
+			$('.picked').removeClass('picked');
+			this.$el.addClass('picked');
+		} else {
+			this.collection.trigger('showViewport');
+		}
+
 		this.collection.trigger('pickName');
 	},
 	removeView: function () {

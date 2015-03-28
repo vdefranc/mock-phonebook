@@ -3,10 +3,15 @@ $(document).ready(function () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
 
-	new App.List();
+	var collection = new App.List();
 	resizeSearchBar();
+	checkScreenSize(collection);
+	
+	$(window).resize(function() {
+		resizeSearchBar();
+		checkScreenSize(collection);
+	});
 
-	window.onresize = resizeSearchBar;
 });
 
 return App;

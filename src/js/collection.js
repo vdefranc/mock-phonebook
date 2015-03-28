@@ -9,7 +9,9 @@ App.List = Backbone.Collection.extend({
 	initialize: function () {
 		var self = this;
 
-		this.on('pickName', this.changeViewportModel, this);
+		this.on('showList', this.showList, this);
+		this.on('showViewport', this.showViewport, this);
+		this.on('pickName', this.changeViewport, this);
 		this.on('addContact', this.addContact, this);
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
@@ -41,7 +43,7 @@ App.List = Backbone.Collection.extend({
 			$('.contact-listing').removeClass('picked');
 		}
 	},
-	changeViewportModel: function () {
+	changeViewport: function () {
 		viewport.trigger('changeViewportModel');
 	},
 	findIndex: function () {
@@ -51,7 +53,7 @@ App.List = Backbone.Collection.extend({
 		}
 	},
 	pickContact: function () {
-		this.get(currentModel).trigger('pick');
+		// this.get(currentModel).trigger('pick');
 	},
 	saveIt: function () {
 		this.forEach(function (i) {
@@ -67,5 +69,19 @@ App.List = Backbone.Collection.extend({
 		return this.filter(function(contact) {
 			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
 		});
+	},
+	showViewport: function () {
+		$('#contact-list-column').animate({left: "-100%"}, 500, function (){
+			$(this).hide();
+		});
+		$('#contact-view').show();
+		$('#contact-view').animate({left: "0"}, 500);
+	},
+	showList: function () {
+		$('#contact-view').animate({left: "100%"}, 500, function (){
+			$(this).hide();
+		});
+		$('#contact-list-column, .top-bar').show();
+		$('#contact-list-column, .top-bar').animate({left: "0"}, 500);
 	}
 });

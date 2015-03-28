@@ -24,6 +24,10 @@ App.SearchView = Backbone.View.extend({
 	addContact: function () {
 		if(!editing) {
 			this.collection.trigger('addContact');
+			
+			if(isMobile) {
+				this.collection.trigger('showViewport');
+			}
 		}
 	},
 	searchList: function (e) {

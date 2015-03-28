@@ -3,6 +3,7 @@ var phonebook = window.phonebook || (function () {
 var App = {},
 	deletedIndex,
 	viewport,
+	isMobile = true,
 	creatingContact = false,
 	currentModel = 'c01',
 	editing = false,
@@ -100,10 +101,9 @@ var App = {},
 		}
 	];
 
-
 function findIndexAfterDelete (collection) {
 	var currentContact;
-	
+
 	if (!collection.at(deletedIndex)) {
 
 		if (deletedIndex === 0) {
@@ -118,6 +118,25 @@ function findIndexAfterDelete (collection) {
 	}
 
 	currentModel = collection.at(currentContact);
+}
+
+function checkScreenSize (collection) {
+	if($(window).width() <= 525 ) {
+		isMobile = true;
+		$('.picked').removeClass('picked')
+		$('.glyphicon-menu-left').closest('button').show();
+	} else {
+		isMobile = false;
+		if(!$('#contact-list-column').is(':visible')){
+			$('#contact-list-column').css({
+				'display': 'block',
+				'left': '0%'
+			});
+			console.log('showing!')
+		}
+		collection.get({cid: currentModel}).trigger('notMobile');
+		$('.glyphicon-menu-left').closest('button').hide();
+	}
 }
 App.Contact = Backbone.Model.extend({
 	initialize: function () {
@@ -153,6 +172,10 @@ App.SearchView = Backbone.View.extend({
 	addContact: function () {
 		if(!editing) {
 			this.collection.trigger('addContact');
+			
+			if(isMobile) {
+				this.collection.trigger('showViewport');
+			}
 		}
 	},
 	searchList: function (e) {
@@ -198,10 +221,11 @@ App.ListingView = Backbone.View.extend({
 	initialize: function (){
 		this.render();
 		this.listenTo(this.model, 'destroy', this.removeView);
+		this.listenTo(this.model, 'notMobile', this.notMobile);
 		this.listenTo(this.model, 'pick', this.pickName);
 		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
-		if (this.model.cid === currentModel) {
+		if (this.model.cid === currentModel && !isMobile) {
 			this.$el.addClass('picked');
 		}
 	},
@@ -216,10 +240,19 @@ App.ListingView = Backbone.View.extend({
 	listDelete: function (e) {
 		this.model.destroy();
 	},
+	notMobile: function () {
+		this.$el.addClass('picked');;
+	},
 	pickName: function () {
 		currentModel = this.model.cid;
-		$('.picked').removeClass('picked');
-		this.$el.addClass('picked');
+
+		if(!isMobile) {
+			$('.picked').removeClass('picked');
+			this.$el.addClass('picked');
+		} else {
+			this.collection.trigger('showViewport');
+		}
+
 		this.collection.trigger('pickName');
 	},
 	removeView: function () {
@@ -263,7 +296,7 @@ App.ViewportInfoView = Backbone.View.extend({
 		this.render();
 	},
 	edit: function () {
-		var editButton = $('.edit').find('span'),
+		var editButton = $('.button-edit').find('span'),
 			inputs = $('.info-input'),
 			vals = [];
 
@@ -348,22 +381,26 @@ App.ViewportView = Backbone.View.extend({
 	$container: $('#contact-view'),
 	template: _.template(' \
             <div class="col-sm-12">\
-                <h3><%= first %> <%= last %></h3>\
                  <div class="contact-view-button-wrapper">\
-                    <button class="btn btn-default edit" type="button">\
+	                <button class="btn btn-default button-back" type="button">\
+	                        <span class="glyphicon glyphicon-menu-left"></span>\
+		            </button>\
+                    <button class="btn btn-default button-edit" type="button">\
                         <span class="glyphicon glyphicon-pencil"></span>\
                     </button>\
-                    <button class="btn btn-default delete" type="button">\
+                    <button class="btn btn-default button-delete" type="button">\
                         <span class="glyphicon glyphicon-trash"></span>\
                     </button>\
                 </div>\
+                <h3><%= first %> <%= last %></h3>\
                 <div class="contact-fields">\
                 </div>\
             </div>\
 	'),
 	events: {
-		'click .edit': 'edit',
-		'click .delete': 'delete'
+		'click .button-edit': 'edit',
+		'click .button-delete': 'delete',
+		'click .button-back': 'showList'
 	},
 	initialize: function () {
 		var self = this;
@@ -409,6 +446,9 @@ App.ViewportView = Backbone.View.extend({
 		var text = this.model.get('first') ? this.model.get('first') + ' ' + this.model.get('last') : 'New Contact';
 			
 		this.$el.find('h3').html(text);
+	},
+	showList: function () {
+		this.collection.trigger('showList');
 	}
 });
 App.List = Backbone.Collection.extend({
@@ -422,7 +462,9 @@ App.List = Backbone.Collection.extend({
 	initialize: function () {
 		var self = this;
 
-		this.on('pickName', this.changeViewportModel, this);
+		this.on('showList', this.showList, this);
+		this.on('showViewport', this.showViewport, this);
+		this.on('pickName', this.changeViewport, this);
 		this.on('addContact', this.addContact, this);
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
@@ -454,7 +496,7 @@ App.List = Backbone.Collection.extend({
 			$('.contact-listing').removeClass('picked');
 		}
 	},
-	changeViewportModel: function () {
+	changeViewport: function () {
 		viewport.trigger('changeViewportModel');
 	},
 	findIndex: function () {
@@ -464,7 +506,7 @@ App.List = Backbone.Collection.extend({
 		}
 	},
 	pickContact: function () {
-		this.get(currentModel).trigger('pick');
+		// this.get(currentModel).trigger('pick');
 	},
 	saveIt: function () {
 		this.forEach(function (i) {
@@ -480,6 +522,20 @@ App.List = Backbone.Collection.extend({
 		return this.filter(function(contact) {
 			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
 		});
+	},
+	showViewport: function () {
+		$('#contact-list-column').animate({left: "-100%"}, 500, function (){
+			$(this).hide();
+		});
+		$('#contact-view').show();
+		$('#contact-view').animate({left: "0"}, 500);
+	},
+	showList: function () {
+		$('#contact-view').animate({left: "100%"}, 500, function (){
+			$(this).hide();
+		});
+		$('#contact-list-column, .top-bar').show();
+		$('#contact-list-column, .top-bar').animate({left: "0"}, 500);
 	}
 });
 $(document).ready(function () {
@@ -487,10 +543,15 @@ $(document).ready(function () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
 
-	new App.List();
+	var collection = new App.List();
 	resizeSearchBar();
+	checkScreenSize(collection);
+	
+	$(window).resize(function() {
+		resizeSearchBar();
+		checkScreenSize(collection);
+	});
 
-	window.onresize = resizeSearchBar;
 });
 
 return App;
