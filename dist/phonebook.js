@@ -1,129 +1,123 @@
 var phonebook = window.phonebook || (function () {
 
-var data = [
-	{
-		first: 'Adam',
-		last: 'Johnson',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Vinny',
-		last: 'DeFrancesco',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Corey',
-		last: 'Tucker',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Emma',
-		last: 'Lydon',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Kate',
-		last: 'Lowe',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Jess',
-		last: 'Guerra',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Zach',
-		last: 'Oliphant',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Larry',
-		last: 'Oliphant',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Lee',
-		last: 'DeFrancesco',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Barry',
-		last: 'Lydon',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Derek',
-		last: 'Jeter',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Marshawn',
-		last: 'Lynch',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Barack',
-		last: 'Obama',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Mitt',
-		last: 'Romney',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Michelle',
-		last: 'Obama',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Ann',
-		last: 'Romney',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Abriella',
-		last: 'Milazzo',
-		phone: '111-111-1111'
-	},
-	{
-		first: 'Ryan',
-		last: 'Smith',
-		phone: '111-111-1111'
-	}
-];
+var App = {},
+	deletedIndex,
+	viewport,
+	creatingContact = false,
+	currentModel = 'c01',
+	editing = false,
+	indexAfterDelete = 0,
+	initialData = [
+		{
+			first: 'Adam',
+			last: 'Johnson',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Vinny',
+			last: 'DeFrancesco',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Corey',
+			last: 'Tucker',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Emma',
+			last: 'Lydon',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Kate',
+			last: 'Lowe',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Jess',
+			last: 'Guerra',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Zach',
+			last: 'Oliphant',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Larry',
+			last: 'Oliphant',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Lee',
+			last: 'DeFrancesco',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Barry',
+			last: 'Lydon',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Derek',
+			last: 'Jeter',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Marshawn',
+			last: 'Lynch',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Barack',
+			last: 'Obama',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Mitt',
+			last: 'Romney',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Michelle',
+			last: 'Obama',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Ann',
+			last: 'Romney',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Abriella',
+			last: 'Milazzo',
+			phone: '111-111-1111'
+		},
+		{
+			first: 'Ryan',
+			last: 'Smith',
+			phone: '111-111-1111'
+		}
+	];
 
-var editing = false;
 
-var currentModel = 'c01';
-var viewport;
-var creatingContact = false;
-var deletedIndex;
-var indexAfterDelete = 0;
-var findIndexAfterDelete = function (collection) {
-		if (!collection.at(deletedIndex)) {
-			if(deletedIndex === 0) {
-				collection.trigger('addContact');
-				console.log('ahh');
-				currentContact = 0;
-			} else {
-				currentContact = deletedIndex - 1;
-			}
+function findIndexAfterDelete (collection) {
+	if (!collection.at(deletedIndex)) {
+
+		if (deletedIndex === 0) {
+			collection.trigger('addContact');
+			currentContact = 0;
 		} else {
-			currentContact = deletedIndex;
+			currentContact = deletedIndex - 1;
 		}
 
-		currentModel = collection.at(currentContact);
-};
+	} else {
+		currentContact = deletedIndex;
+	}
 
-var App = {};
-
-
+	currentModel = collection.at(currentContact);
+}
 App.Contact = Backbone.Model.extend({
-	first: 'New',
-	last: 'Contact',
-	phone: 'Enter Number',
-	email: 'Enter Email',
 	initialize: function () {
 		this.on('destroy', this.onDestroy, this);
 	},
@@ -144,15 +138,15 @@ App.SearchView = Backbone.View.extend({
             <span class="glyphicon glyphicon-plus"></span>\
         </button>\
 		',
+	events: {
+		'click button': 'addContact',
+		"keyup .searching" : "searchList",
+	},
 	initialize: function () {
 		this.render();
 	},
 	render: function () {
 		$(this.el).html(this.template);
-	},
-	events: {
-		'click button': 'addContact',
-		"keyup .searching" : "searchList",
 	},
 	addContact: function () {
 		if(!editing) {
@@ -163,26 +157,25 @@ App.SearchView = Backbone.View.extend({
 		this.collection.trigger('searched');
 	}
 });
-App.ContactListView = Backbone.View.extend({
+App.ListView = Backbone.View.extend({
 	id: 'contact-list',
 	$container: $('#contact-list-column'),
 	initialize: function (){
-		this.render();
 		var self = this;
 
-		this.listenTo(this.collection, 'add', this.populate);
-		this.listenTo(this.collection, 'searched edited', this.populate);
+		this.listenTo(this.collection, 'add searched edited', this.populate);
 
-		this.populate();
+		this.render();
 	},
 	render: function () {
 		this.$container.append(this.$el);
+		this.populate();
 	},
 	populate: function () {
 		var self = this;
 
 		this.collection.search($('.searching').val()).forEach(function (i) {
-			new App.ContactListingView({
+			new App.ListingView({
 				model: i,
 				collection: self.collection
 			});
@@ -190,7 +183,7 @@ App.ContactListView = Backbone.View.extend({
 	}
 });
 
-App.ContactListingView = Backbone.View.extend({
+App.ListingView = Backbone.View.extend({
 	className: 'contact-listing row',
 	$container: $('#contact-list'),
 	template: _.template(' \
@@ -202,38 +195,37 @@ App.ContactListingView = Backbone.View.extend({
 	},
 	initialize: function (){
 		this.render();
-		//this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
-		this.listenTo(this.collection, 'add edited searched', this.removeView);
 		this.listenTo(this.model, 'pick', this.pickName);
+		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
 		if (this.model.cid == currentModel) {
 			this.$el.addClass('picked');
 		}
 	},
 	render: function () {
-		var questionHtml = this.template({
+		var info = this.template({
 			name: this.model.get('last') + ', ' + this.model.get('first')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 		this.$container.append(this.$el);
 	},
 	listDelete: function (e) {
 		this.model.destroy();
 	},
+	pickName: function () {
+		currentModel = this.model.cid;
+		$('.picked').removeClass('picked');
+		this.$el.addClass('picked');
+		this.collection.trigger('pickName');
+	},
 	removeView: function () {
 		this.remove();
 		this.stopListening();
-	},
-	pickName: function () {
-		currentModel = this.model.cid;
-		$('.contact-listing').removeClass('picked');
-		this.$el.addClass('picked');
-		this.collection.trigger('pickName');
 	}
 });
-App.ContactViewportChildView = Backbone.View.extend({
+App.ViewportInfoView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
 			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
@@ -251,28 +243,17 @@ App.ContactViewportChildView = Backbone.View.extend({
 		this.listenTo(this.collection, 'edit', this.edit, this);
 	},
 	render: function () {
-		var modelData = {
-			first: this.model.get('first'),
-			last: this.model.get('last'),
-			phone: this.model.get('phone')
-		};
-
-		var questionHtml = this.template({
+		var info = this.template({
 			first: this.model.get('first'),
 			last: this.model.get('last'),
 			phone: this.model.get('phone')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
 		this.render();
-	},
-	newModel: function () {
-		this.model = currentModel;
-		this.render();
-		this.edit();
 	},
 	edit: function () {
 		var editButton = $('.edit').find('span');
@@ -285,11 +266,11 @@ App.ContactViewportChildView = Backbone.View.extend({
 			
 			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
 		} else {
+			var inputs = this.$el.find('input'),
+				vals = [];
+
 			this.$el.find('input').attr("readonly", true)
 			.removeClass('active-edit');
-
-			var inputs = this.$el.find('input');
-			var vals = [];
 
 			inputs.each(function(i){
 				vals.push($(this).val());
@@ -315,9 +296,14 @@ App.ContactViewportChildView = Backbone.View.extend({
 			editing = false;
 		}
 	},
+	newModel: function () {
+		this.model = currentModel;
+		this.render();
+		this.edit();
+	}
 });
 
-App.ContactViewportView = Backbone.View.extend({
+App.ViewportView = Backbone.View.extend({
 	model: App.Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
@@ -343,47 +329,41 @@ App.ContactViewportView = Backbone.View.extend({
 	initialize: function () {
 		var self = this;
 
-		//this.listenTo(this.model, 'destroy', this.newModel);
 		this.listenTo(this.collection, 'pickName', this.changeModel);
 		this.listenTo(this.collection, 'addContact', this.newModel);
 		this.listenTo(this.collection, 'add change', this.subRender);
 		this.render();
 
-		new App.ContactViewportChildView({
+		new App.ViewportInfoView({
 			model: self.model,
 			collection: self.collection,
 			el: '.contact-fields',
 		});
 	},
 	render: function (){
-		var modelData = {
-			first: this.model.get('first'),
-			last: this.model.get('last')
-		};
-
-		var questionHtml = this.template({
+		var info = this.template({
 			first: this.model.get('first'),
 			last: this.model.get('last')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 		this.$container.append(this.$el);
 	},
-	edit: function () {
-		this.collection.trigger('edit');
+	changeModel: function () {
+		this.model = this.collection.get({cid: currentModel});
+		this.subRender();
 	},
 	delete: function () {
 		if(!editing) {
 			this.model.destroy();
 		}
 	},
+	edit: function () {
+		this.collection.trigger('edit');
+	},
 	newModel: function () {
 		this.model = currentModel;
 		creatingContact = true;
-		this.subRender();
-	},
-	changeModel: function () {
-		this.model = this.collection.get({cid: currentModel});
 		this.subRender();
 	},
 	subRender: function () {
@@ -392,61 +372,47 @@ App.ContactViewportView = Backbone.View.extend({
 		this.$el.find('h3').html(text);
 	}
 });
-App.ContactCollection = Backbone.Collection.extend({
+App.List = Backbone.Collection.extend({
 	model: App.Contact,
 	localStorage: new Backbone.LocalStorage("phonebook-store"),
+	comparator: function(contact) {
+		var name = contact.get("last") + contact.get("first");
+
+		return name.toLowerCase();
+	},
 	initialize: function () {
+		var self = this;
+
+		this.on('pickName', this.changeViewportModel, this);
+		this.on('addContact', this.addContact, this);
+		this.on('remove', this.findIndex, this);
+		this.on('edited', this.sort, this);
+		this.on('edited searched', this.pickContact, this);
+		this.on('change add', this.saveit);
 
 		if(!localStorage.length){
-			this.reset(data);
-			this.forEach(function  (i) {
+			this.reset(initialData);
+			this.forEach(function (i) {
 				i.save();
 			});
 		} else {
 			this.fetch();
 		}
 
-		var self = this;
 		currentModel = this.at(0).cid;
-		this.on('pickName', this.changeViewportModel, this);
-		this.on('addContact', this.addContact, this);
-		this.on('remove', this.findIndex, this);
-		this.on('edited', this.sort, this);
-		this.on('edited searched', this.pickContact, this);
-		this.on('change', this.saveit);
-		this.on('add', this.saveit);
 
 		new App.SearchView({collection: self});
-		new App.ContactListView({collection: self});
-		viewport = new App.ContactViewportView({
+		new App.ListView({collection: self});
+		viewport = new App.ViewportView({
 			collection: self,
 			model: this.at(0)
 		});
 	},
-	saveit: function () {
-		this.forEach(function  (i) {
-			i.save();
-		});
-	},
-	searchedList: this,
-	search: function (query) {
-		if (query == '') return this;
- 
-		var pattern = new RegExp(query, 'i');
-		return this.filter(function(data) {
-		  	return pattern.test(data.get("last") + ' ' + data.get("first"));
-		} );
-	},
-	comparator: function(contact) {
-		var name = contact.get("last") + contact.get("first");
-
-		return name.toLowerCase();
-	},
 	addContact: function () {
-		currentModel = new Contact({});
-
-		$('.contact-listing').removeClass('picked');
-
+		if(!editing) {
+			currentModel = new App.Contact({});
+			$('.contact-listing').removeClass('picked');
+		}
 	},
 	changeViewportModel: function () {
 		viewport.trigger('changeViewportModel');
@@ -456,25 +422,35 @@ App.ContactCollection = Backbone.Collection.extend({
 		if(this.length) {
 			this.pickContact();
 		}
-
 	},
 	pickContact: function () {
-		console.log(currentModel);
 		this.get(currentModel).trigger('pick');
+	},
+	saveIt: function () {
+		this.forEach(function  (i) {
+			i.save();
+		});
+	},
+	search: function (query) {
+		if (query === '') return this;
+ 
+		var pattern = new RegExp(query, 'i');
+		return this.filter(function(contact) {
+		  	return pattern.test(contact.get("last") + ' ' + contact.get("first"));
+		} );
 	}
 });
 $(document).ready(function () {
-	var car = new App.ContactCollection();
-
+	new App.List();
 
 	resizeBar();
 	window.onresize = resizeBar;
+
+	function resizeBar() {
+		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
+	}
 });
 
 return App;
 
 })();
-
-function resizeBar() {
-	$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
-}

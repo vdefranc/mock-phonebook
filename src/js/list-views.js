@@ -1,23 +1,22 @@
-App.ContactListView = Backbone.View.extend({
+App.ListView = Backbone.View.extend({
 	id: 'contact-list',
 	$container: $('#contact-list-column'),
 	initialize: function (){
-		this.render();
 		var self = this;
 
-		this.listenTo(this.collection, 'add', this.populate);
-		this.listenTo(this.collection, 'searched edited', this.populate);
+		this.listenTo(this.collection, 'add searched edited', this.populate);
 
-		this.populate();
+		this.render();
 	},
 	render: function () {
 		this.$container.append(this.$el);
+		this.populate();
 	},
 	populate: function () {
 		var self = this;
 
 		this.collection.search($('.searching').val()).forEach(function (i) {
-			new App.ContactListingView({
+			new App.ListingView({
 				model: i,
 				collection: self.collection
 			});
@@ -25,7 +24,7 @@ App.ContactListView = Backbone.View.extend({
 	}
 });
 
-App.ContactListingView = Backbone.View.extend({
+App.ListingView = Backbone.View.extend({
 	className: 'contact-listing row',
 	$container: $('#contact-list'),
 	template: _.template(' \
@@ -37,34 +36,33 @@ App.ContactListingView = Backbone.View.extend({
 	},
 	initialize: function (){
 		this.render();
-		//this.listenTo(this.model, 'change', this.render);
 		this.listenTo(this.model, 'destroy', this.removeView);
-		this.listenTo(this.collection, 'add edited searched', this.removeView);
 		this.listenTo(this.model, 'pick', this.pickName);
+		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
 		if (this.model.cid == currentModel) {
 			this.$el.addClass('picked');
 		}
 	},
 	render: function () {
-		var questionHtml = this.template({
+		var info = this.template({
 			name: this.model.get('last') + ', ' + this.model.get('first')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 		this.$container.append(this.$el);
 	},
 	listDelete: function (e) {
 		this.model.destroy();
 	},
+	pickName: function () {
+		currentModel = this.model.cid;
+		$('.picked').removeClass('picked');
+		this.$el.addClass('picked');
+		this.collection.trigger('pickName');
+	},
 	removeView: function () {
 		this.remove();
 		this.stopListening();
-	},
-	pickName: function () {
-		currentModel = this.model.cid;
-		$('.contact-listing').removeClass('picked');
-		this.$el.addClass('picked');
-		this.collection.trigger('pickName');
 	}
 });

@@ -11,15 +11,15 @@ App.SearchView = Backbone.View.extend({
             <span class="glyphicon glyphicon-plus"></span>\
         </button>\
 		',
+	events: {
+		'click button': 'addContact',
+		"keyup .searching" : "searchList",
+	},
 	initialize: function () {
 		this.render();
 	},
 	render: function () {
 		$(this.el).html(this.template);
-	},
-	events: {
-		'click button': 'addContact',
-		"keyup .searching" : "searchList",
 	},
 	addContact: function () {
 		if(!editing) {

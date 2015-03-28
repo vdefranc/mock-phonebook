@@ -1,4 +1,4 @@
-App.ContactViewportChildView = Backbone.View.extend({
+App.ViewportInfoView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
 			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
@@ -16,28 +16,17 @@ App.ContactViewportChildView = Backbone.View.extend({
 		this.listenTo(this.collection, 'edit', this.edit, this);
 	},
 	render: function () {
-		var modelData = {
-			first: this.model.get('first'),
-			last: this.model.get('last'),
-			phone: this.model.get('phone')
-		};
-
-		var questionHtml = this.template({
+		var info = this.template({
 			first: this.model.get('first'),
 			last: this.model.get('last'),
 			phone: this.model.get('phone')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 	},
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
 		this.render();
-	},
-	newModel: function () {
-		this.model = currentModel;
-		this.render();
-		this.edit();
 	},
 	edit: function () {
 		var editButton = $('.edit').find('span');
@@ -50,11 +39,11 @@ App.ContactViewportChildView = Backbone.View.extend({
 			
 			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
 		} else {
+			var inputs = this.$el.find('input'),
+				vals = [];
+
 			this.$el.find('input').attr("readonly", true)
 			.removeClass('active-edit');
-
-			var inputs = this.$el.find('input');
-			var vals = [];
 
 			inputs.each(function(i){
 				vals.push($(this).val());
@@ -80,9 +69,14 @@ App.ContactViewportChildView = Backbone.View.extend({
 			editing = false;
 		}
 	},
+	newModel: function () {
+		this.model = currentModel;
+		this.render();
+		this.edit();
+	}
 });
 
-App.ContactViewportView = Backbone.View.extend({
+App.ViewportView = Backbone.View.extend({
 	model: App.Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
@@ -108,47 +102,41 @@ App.ContactViewportView = Backbone.View.extend({
 	initialize: function () {
 		var self = this;
 
-		//this.listenTo(this.model, 'destroy', this.newModel);
 		this.listenTo(this.collection, 'pickName', this.changeModel);
 		this.listenTo(this.collection, 'addContact', this.newModel);
 		this.listenTo(this.collection, 'add change', this.subRender);
 		this.render();
 
-		new App.ContactViewportChildView({
+		new App.ViewportInfoView({
 			model: self.model,
 			collection: self.collection,
 			el: '.contact-fields',
 		});
 	},
 	render: function (){
-		var modelData = {
-			first: this.model.get('first'),
-			last: this.model.get('last')
-		};
-
-		var questionHtml = this.template({
+		var info = this.template({
 			first: this.model.get('first'),
 			last: this.model.get('last')
 		});
 
-		this.$el.html(questionHtml);
+		this.$el.html(info);
 		this.$container.append(this.$el);
 	},
-	edit: function () {
-		this.collection.trigger('edit');
+	changeModel: function () {
+		this.model = this.collection.get({cid: currentModel});
+		this.subRender();
 	},
 	delete: function () {
 		if(!editing) {
 			this.model.destroy();
 		}
 	},
+	edit: function () {
+		this.collection.trigger('edit');
+	},
 	newModel: function () {
 		this.model = currentModel;
 		creatingContact = true;
-		this.subRender();
-	},
-	changeModel: function () {
-		this.model = this.collection.get({cid: currentModel});
 		this.subRender();
 	},
 	subRender: function () {
