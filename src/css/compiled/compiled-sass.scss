@@ -5,6 +5,7 @@ $mobile: 525px;
 
 .glyphicon {
 	top: 0;
+
 }
 
 html {
@@ -129,19 +130,21 @@ body {
 		input {
 			float: right;
 			clear: right;
-
-			border: none;
-			border-bottom: 1px dotted #ccc;
+			border: 1px solid #ccc;
 			text-align: center;
 
 			&.active-edit {
-				background-color: lightblue;
+				background-color: aliceblue;
+				border-color: slategray;
+				color: gray;
 			}
+
 		}
 
 		.validationMessage {
 			color: red;
 			display: none;
+			margin-bottom: 0;
 		}
 	}
 }

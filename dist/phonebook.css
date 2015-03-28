@@ -87,14 +87,16 @@ body {
     #contact-view .contact-fields input {
       float: right;
       clear: right;
-      border: none;
-      border-bottom: 1px dotted #ccc;
+      border: 1px solid #ccc;
       text-align: center; }
       #contact-view .contact-fields input.active-edit {
-        background-color: lightblue; }
+        background-color: aliceblue;
+        border-color: slategray;
+        color: gray; }
     #contact-view .contact-fields .validationMessage {
       color: red;
-      display: none; }
+      display: none;
+      margin-bottom: 0; }
 
 .contact-info {
   height: 40%; }

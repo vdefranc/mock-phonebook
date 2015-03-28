@@ -284,17 +284,19 @@ App.ViewportInfoView = Backbone.View.extend({
 				phone: vals[2]
 			});
 
-			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
+			editButton.removeClass('glyphicon-floppy-save');
+
+			if (creatingContact) {
+				console.log('create contact');
+				this.collection.add(this.model);
+				creatingContact = false;
+			}
 
 			this.render();
 			currentModel = this.model.cid;
 			this.collection.trigger('edited');
 			editing = false;
 
-			if (creatingContact) {
-				this.collection.add(this.model);
-				creatingContact = false;
-			}
 		}
 
 		function initiateEdit () {
@@ -302,7 +304,7 @@ App.ViewportInfoView = Backbone.View.extend({
 			inputs.attr("readonly", false)
 				.addClass('active-edit');
 			
-			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
+			editButton.addClass('glyphicon-floppy-save');
 		}
 
 		function validate (vals) {
@@ -313,7 +315,6 @@ App.ViewportInfoView = Backbone.View.extend({
 				testArray = [first, last, phone],
 				allPass = first && last && phone;
 
-			console.log(allPass);
 			if (allPass) {
 				return true;
 			} else {
@@ -350,7 +351,7 @@ App.ViewportView = Backbone.View.extend({
                 <h3><%= first %> <%= last %></h3>\
                  <div class="contact-view-button-wrapper">\
                     <button class="btn btn-default edit" type="button">\
-                        <span class="glyphicon glyphicon-edit"></span>\
+                        <span class="glyphicon glyphicon-pencil"></span>\
                     </button>\
                     <button class="btn btn-default delete" type="button">\
                         <span class="glyphicon glyphicon-trash"></span>\
