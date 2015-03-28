@@ -102,6 +102,8 @@ var App = {},
 
 
 function findIndexAfterDelete (collection) {
+	var currentContact;
+	
 	if (!collection.at(deletedIndex)) {
 
 		if (deletedIndex === 0) {
@@ -199,7 +201,7 @@ App.ListingView = Backbone.View.extend({
 		this.listenTo(this.model, 'pick', this.pickName);
 		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
-		if (this.model.cid == currentModel) {
+		if (this.model.cid === currentModel) {
 			this.$el.addClass('picked');
 		}
 	},
@@ -228,10 +230,15 @@ App.ListingView = Backbone.View.extend({
 App.ViewportInfoView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
-			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
-			<p>Last Name:<input name="last" type="text" value="<%= last %>"" readonly></p>\
-			<p>Phone Number:<input name="phone" type="text" value="<%= phone %>"" readonly></p>\
+			<p>First Name:<input class="info-input" name="first" type="text" value="<%= first %>" readonly></p>\
+			<p>Last Name:<input class="info-input" name="last" type="text" value="<%= last %>"" readonly></p>\
+			<p>Phone Number:<input class="info-input" name="phone" type="text" value="<%= phone %>"" readonly></p>\
 		</form>\
+		<div id="validationContainer"> \
+		<p class="validationMessage">Please enter a valid first name.</p> \
+		<p class="validationMessage">Please enter a valid last name.</p> \
+		<p class="validationMessage">Please enter a valid phone number.</p> \
+		</div> \
 	'),
 	events: {
 	},
@@ -256,25 +263,20 @@ App.ViewportInfoView = Backbone.View.extend({
 		this.render();
 	},
 	edit: function () {
-		var editButton = $('.edit').find('span');
+		var editButton = $('.edit').find('span'),
+			inputs = $('.info-input'),
+			vals = [];
 
 		if (!editing) {
-			editing = true;
-			this.$el.find('input').attr("readonly", false)
-				.addClass('active-edit');
-
-			
-			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
+			initiateEdit();
 		} else {
-			var inputs = this.$el.find('input'),
-				vals = [];
-
-			this.$el.find('input').attr("readonly", true)
-			.removeClass('active-edit');
-
 			inputs.each(function(i){
 				vals.push($(this).val());
 			});
+
+			if(!validate(vals)) {
+				return false;
+			}
 
 			this.model.set({
 				first: vals[0],
@@ -282,25 +284,61 @@ App.ViewportInfoView = Backbone.View.extend({
 				phone: vals[2]
 			});
 
-
 			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
-
-			if (creatingContact) {
-				this.collection.add(this.model);
-				creatingContact = false;
-			}
 
 			this.render();
 			currentModel = this.model.cid;
 			this.collection.trigger('edited');
 			editing = false;
+
+			if (creatingContact) {
+				this.collection.add(this.model);
+				creatingContact = false;
+			}
 		}
+
+		function initiateEdit () {
+			editing = true;
+			inputs.attr("readonly", false)
+				.addClass('active-edit');
+			
+			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
+		}
+
+		function validate (vals) {
+			var phoneDigits = vals[2].split('-').join('');
+			var first = /^[a-zA-Z]+$/.test(vals[0]),
+				last = /^[a-zA-Z]+$/.test(vals[1]),
+				phone = /^\d+$/.test(phoneDigits),
+				testArray = [first, last, phone],
+				allPass = first && last && phone;
+
+			console.log(allPass);
+			if (allPass) {
+				return true;
+			} else {
+				var iterator = 0;
+				testArray.forEach(function (i) {
+					if (!i) {
+						$($('.info-input')[iterator]).css('border', '1px solid red');
+						$($('.validationMessage')[iterator]).show();
+						console.log($('.validationMessage')[iterator]);
+					}
+					iterator++;
+				});
+			}
+		}
+
 	},
 	newModel: function () {
 		this.model = currentModel;
 		this.render();
 		this.edit();
 	}
+});
+
+App.ValidationView = Backbone.View.extend({
+
 });
 
 App.ViewportView = Backbone.View.extend({
@@ -388,7 +426,8 @@ App.List = Backbone.Collection.extend({
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
 		this.on('edited searched', this.pickContact, this);
-		this.on('change add', this.saveit);
+		this.on('change add edited', this.saveIt);
+		this.on('edited', this.saveIt);
 
 		if(!localStorage.length){
 			this.reset(initialData);
@@ -427,28 +466,30 @@ App.List = Backbone.Collection.extend({
 		this.get(currentModel).trigger('pick');
 	},
 	saveIt: function () {
-		this.forEach(function  (i) {
+		this.forEach(function (i) {
 			i.save();
 		});
 	},
 	search: function (query) {
-		if (query === '') return this;
+		if (query === '') {
+			return this;
+		}
  
 		var pattern = new RegExp(query, 'i');
 		return this.filter(function(contact) {
-		  	return pattern.test(contact.get("last") + ' ' + contact.get("first"));
-		} );
+			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
+		});
 	}
 });
 $(document).ready(function () {
-	new App.List();
-
-	resizeBar();
-	window.onresize = resizeBar;
-
-	function resizeBar() {
+	function resizeSearchBar () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
+
+	new App.List();
+	resizeSearchBar();
+
+	window.onresize = resizeSearchBar;
 });
 
 return App;

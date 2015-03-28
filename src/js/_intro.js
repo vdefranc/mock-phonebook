@@ -102,6 +102,8 @@ var App = {},
 
 
 function findIndexAfterDelete (collection) {
+	var currentContact;
+	
 	if (!collection.at(deletedIndex)) {
 
 		if (deletedIndex === 0) {

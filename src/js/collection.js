@@ -14,7 +14,8 @@ App.List = Backbone.Collection.extend({
 		this.on('remove', this.findIndex, this);
 		this.on('edited', this.sort, this);
 		this.on('edited searched', this.pickContact, this);
-		this.on('change add', this.saveit);
+		this.on('change add edited', this.saveIt);
+		this.on('edited', this.saveIt);
 
 		if(!localStorage.length){
 			this.reset(initialData);
@@ -53,16 +54,18 @@ App.List = Backbone.Collection.extend({
 		this.get(currentModel).trigger('pick');
 	},
 	saveIt: function () {
-		this.forEach(function  (i) {
+		this.forEach(function (i) {
 			i.save();
 		});
 	},
 	search: function (query) {
-		if (query === '') return this;
+		if (query === '') {
+			return this;
+		}
  
 		var pattern = new RegExp(query, 'i');
 		return this.filter(function(contact) {
-		  	return pattern.test(contact.get("last") + ' ' + contact.get("first"));
-		} );
+			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
+		});
 	}
 });

@@ -92,6 +92,9 @@ body {
       text-align: center; }
       #contact-view .contact-fields input.active-edit {
         background-color: lightblue; }
+    #contact-view .contact-fields .validationMessage {
+      color: red;
+      display: none; }
 
 .contact-info {
   height: 40%; }

@@ -40,7 +40,7 @@ App.ListingView = Backbone.View.extend({
 		this.listenTo(this.model, 'pick', this.pickName);
 		this.listenTo(this.collection, 'add edited searched', this.removeView);
 
-		if (this.model.cid == currentModel) {
+		if (this.model.cid === currentModel) {
 			this.$el.addClass('picked');
 		}
 	},

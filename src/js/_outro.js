@@ -1,12 +1,12 @@
 $(document).ready(function () {
-	new App.List();
-
-	resizeBar();
-	window.onresize = resizeBar;
-
-	function resizeBar() {
+	function resizeSearchBar () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
+
+	new App.List();
+	resizeSearchBar();
+
+	window.onresize = resizeSearchBar;
 });
 
 return App;

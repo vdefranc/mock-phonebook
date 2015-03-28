@@ -1,10 +1,15 @@
 App.ViewportInfoView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
-			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
-			<p>Last Name:<input name="last" type="text" value="<%= last %>"" readonly></p>\
-			<p>Phone Number:<input name="phone" type="text" value="<%= phone %>"" readonly></p>\
+			<p>First Name:<input class="info-input" name="first" type="text" value="<%= first %>" readonly></p>\
+			<p>Last Name:<input class="info-input" name="last" type="text" value="<%= last %>"" readonly></p>\
+			<p>Phone Number:<input class="info-input" name="phone" type="text" value="<%= phone %>"" readonly></p>\
 		</form>\
+		<div id="validationContainer"> \
+		<p class="validationMessage">Please enter a valid first name.</p> \
+		<p class="validationMessage">Please enter a valid last name.</p> \
+		<p class="validationMessage">Please enter a valid phone number.</p> \
+		</div> \
 	'),
 	events: {
 	},
@@ -29,25 +34,20 @@ App.ViewportInfoView = Backbone.View.extend({
 		this.render();
 	},
 	edit: function () {
-		var editButton = $('.edit').find('span');
+		var editButton = $('.edit').find('span'),
+			inputs = $('.info-input'),
+			vals = [];
 
 		if (!editing) {
-			editing = true;
-			this.$el.find('input').attr("readonly", false)
-				.addClass('active-edit');
-
-			
-			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
+			initiateEdit();
 		} else {
-			var inputs = this.$el.find('input'),
-				vals = [];
-
-			this.$el.find('input').attr("readonly", true)
-			.removeClass('active-edit');
-
 			inputs.each(function(i){
 				vals.push($(this).val());
 			});
+
+			if(!validate(vals)) {
+				return false;
+			}
 
 			this.model.set({
 				first: vals[0],
@@ -55,25 +55,61 @@ App.ViewportInfoView = Backbone.View.extend({
 				phone: vals[2]
 			});
 
-
 			editButton.removeClass('glyphicon-floppy-save').addClass('glyphicon-edit');
-
-			if (creatingContact) {
-				this.collection.add(this.model);
-				creatingContact = false;
-			}
 
 			this.render();
 			currentModel = this.model.cid;
 			this.collection.trigger('edited');
 			editing = false;
+
+			if (creatingContact) {
+				this.collection.add(this.model);
+				creatingContact = false;
+			}
 		}
+
+		function initiateEdit () {
+			editing = true;
+			inputs.attr("readonly", false)
+				.addClass('active-edit');
+			
+			editButton.removeClass('glyphicon-edit').addClass('glyphicon-floppy-save');
+		}
+
+		function validate (vals) {
+			var phoneDigits = vals[2].split('-').join('');
+			var first = /^[a-zA-Z]+$/.test(vals[0]),
+				last = /^[a-zA-Z]+$/.test(vals[1]),
+				phone = /^\d+$/.test(phoneDigits),
+				testArray = [first, last, phone],
+				allPass = first && last && phone;
+
+			console.log(allPass);
+			if (allPass) {
+				return true;
+			} else {
+				var iterator = 0;
+				testArray.forEach(function (i) {
+					if (!i) {
+						$($('.info-input')[iterator]).css('border', '1px solid red');
+						$($('.validationMessage')[iterator]).show();
+						console.log($('.validationMessage')[iterator]);
+					}
+					iterator++;
+				});
+			}
+		}
+
 	},
 	newModel: function () {
 		this.model = currentModel;
 		this.render();
 		this.edit();
 	}
+});
+
+App.ValidationView = Backbone.View.extend({
+
 });
 
 App.ViewportView = Backbone.View.extend({
