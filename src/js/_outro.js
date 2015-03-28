@@ -1,13 +1,15 @@
 $(document).ready(function () {
-	var app = new ContactCollection();
+	var car = new App.ContactCollection();
 
 
 	resizeBar();
 	window.onresize = resizeBar;
 });
 
+return App;
+
 })();
 
 function resizeBar() {
-	$('.top-bar').outerWidth($('.top-bar').parent().innerWidth());
+	$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 }

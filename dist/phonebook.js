@@ -1,40 +1,5 @@
 var phonebook = window.phonebook || (function () {
 
-var editing = false;
-
-var currentModel = 'c01';
-var viewport;
-var creatingContact = false;
-var deletedIndex;
-var indexAfterDelete = 0;
-var findIndexAfterDelete = function (collection) {
-		if (!collection.at(deletedIndex)) {
-			if(deletedIndex === 0) {
-				collection.trigger('addContact');
-				console.log('ahh');
-				currentContact = 0;
-			} else {
-				currentContact = deletedIndex - 1;
-			}
-		} else {
-			currentContact = deletedIndex;
-		}
-
-		currentModel = collection.at(currentContact);
-};
-var Contact = Backbone.Model.extend({
-	first: 'New',
-	last: 'Contact',
-	phone: 'Enter Number',
-	email: 'Enter Email',
-	initialize: function () {
-		this.on('destroy', this.onDestroy, this);
-	},
-	onDestroy: function () {
-		deletedIndex = this.collection.indexOf(this);
-	}
-});
-
 var data = [
 	{
 		first: 'Adam',
@@ -127,7 +92,46 @@ var data = [
 		phone: '111-111-1111'
 	}
 ];
-var SearchView = Backbone.View.extend({
+
+var editing = false;
+
+var currentModel = 'c01';
+var viewport;
+var creatingContact = false;
+var deletedIndex;
+var indexAfterDelete = 0;
+var findIndexAfterDelete = function (collection) {
+		if (!collection.at(deletedIndex)) {
+			if(deletedIndex === 0) {
+				collection.trigger('addContact');
+				console.log('ahh');
+				currentContact = 0;
+			} else {
+				currentContact = deletedIndex - 1;
+			}
+		} else {
+			currentContact = deletedIndex;
+		}
+
+		currentModel = collection.at(currentContact);
+};
+
+var App = {};
+
+
+App.Contact = Backbone.Model.extend({
+	first: 'New',
+	last: 'Contact',
+	phone: 'Enter Number',
+	email: 'Enter Email',
+	initialize: function () {
+		this.on('destroy', this.onDestroy, this);
+	},
+	onDestroy: function () {
+		deletedIndex = this.collection.indexOf(this);
+	}
+});
+App.SearchView = Backbone.View.extend({
 	el: '.top-bar',
 	template: ' \
 		<div class="col-xs-10">\
@@ -159,8 +163,7 @@ var SearchView = Backbone.View.extend({
 		this.collection.trigger('searched');
 	}
 });
-
-var ContactListView = Backbone.View.extend({
+App.ContactListView = Backbone.View.extend({
 	id: 'contact-list',
 	$container: $('#contact-list-column'),
 	initialize: function (){
@@ -179,7 +182,7 @@ var ContactListView = Backbone.View.extend({
 		var self = this;
 
 		this.collection.search($('.searching').val()).forEach(function (i) {
-			new ContactListingView({
+			new App.ContactListingView({
 				model: i,
 				collection: self.collection
 			});
@@ -187,7 +190,7 @@ var ContactListView = Backbone.View.extend({
 	}
 });
 
-var ContactListingView = Backbone.View.extend({
+App.ContactListingView = Backbone.View.extend({
 	className: 'contact-listing row',
 	$container: $('#contact-list'),
 	template: _.template(' \
@@ -230,8 +233,7 @@ var ContactListingView = Backbone.View.extend({
 		this.collection.trigger('pickName');
 	}
 });
-
-var ContactViewportChildView = Backbone.View.extend({
+App.ContactViewportChildView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
 			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
@@ -315,8 +317,8 @@ var ContactViewportChildView = Backbone.View.extend({
 	},
 });
 
-var ContactViewportView = Backbone.View.extend({
-	model: Contact,
+App.ContactViewportView = Backbone.View.extend({
+	model: App.Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
 	template: _.template(' \
@@ -347,7 +349,7 @@ var ContactViewportView = Backbone.View.extend({
 		this.listenTo(this.collection, 'add change', this.subRender);
 		this.render();
 
-		new ContactViewportChildView({
+		new App.ContactViewportChildView({
 			model: self.model,
 			collection: self.collection,
 			el: '.contact-fields',
@@ -390,17 +392,19 @@ var ContactViewportView = Backbone.View.extend({
 		this.$el.find('h3').html(text);
 	}
 });
-
-var ContactCollection = Backbone.Collection.extend({
-	model: Contact,
+App.ContactCollection = Backbone.Collection.extend({
+	model: App.Contact,
 	localStorage: new Backbone.LocalStorage("phonebook-store"),
 	initialize: function () {
 
-		// this.reset(data);
-		// this.forEach(function  (i) {
-		// 	i.save();
-		// });
-		this.fetch();
+		if(!localStorage.length){
+			this.reset(data);
+			this.forEach(function  (i) {
+				i.save();
+			});
+		} else {
+			this.fetch();
+		}
 
 		var self = this;
 		currentModel = this.at(0).cid;
@@ -412,9 +416,9 @@ var ContactCollection = Backbone.Collection.extend({
 		this.on('change', this.saveit);
 		this.on('add', this.saveit);
 
-		new SearchView({collection: self});
-		new ContactListView({collection: self});
-		viewport = new ContactViewportView({
+		new App.SearchView({collection: self});
+		new App.ContactListView({collection: self});
+		viewport = new App.ContactViewportView({
 			collection: self,
 			model: this.at(0)
 		});
@@ -460,15 +464,17 @@ var ContactCollection = Backbone.Collection.extend({
 	}
 });
 $(document).ready(function () {
-	var app = new ContactCollection();
+	var car = new App.ContactCollection();
 
 
 	resizeBar();
 	window.onresize = resizeBar;
 });
 
+return App;
+
 })();
 
 function resizeBar() {
-	$('.top-bar').outerWidth($('.top-bar').parent().innerWidth());
+	$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 }

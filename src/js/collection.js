@@ -1,13 +1,16 @@
-var ContactCollection = Backbone.Collection.extend({
-	model: Contact,
+App.ContactCollection = Backbone.Collection.extend({
+	model: App.Contact,
 	localStorage: new Backbone.LocalStorage("phonebook-store"),
 	initialize: function () {
 
-		// this.reset(data);
-		// this.forEach(function  (i) {
-		// 	i.save();
-		// });
-		this.fetch();
+		if(!localStorage.length){
+			this.reset(data);
+			this.forEach(function  (i) {
+				i.save();
+			});
+		} else {
+			this.fetch();
+		}
 
 		var self = this;
 		currentModel = this.at(0).cid;
@@ -19,9 +22,9 @@ var ContactCollection = Backbone.Collection.extend({
 		this.on('change', this.saveit);
 		this.on('add', this.saveit);
 
-		new SearchView({collection: self});
-		new ContactListView({collection: self});
-		viewport = new ContactViewportView({
+		new App.SearchView({collection: self});
+		new App.ContactListView({collection: self});
+		viewport = new App.ContactViewportView({
 			collection: self,
 			model: this.at(0)
 		});

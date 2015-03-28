@@ -6,7 +6,7 @@ html {
   background-color: #eee; }
 
 body {
-  overflow-x: hidden;
+  overflow: hidden;
   width: 70%;
   margin: 0 auto;
   border-left: 1px solid #ccc;

@@ -1,108 +1,4 @@
-var SearchView = Backbone.View.extend({
-	el: '.top-bar',
-	template: ' \
-		<div class="col-xs-10">\
-            <div class="search-group has-feedback">\
-                <i class="glyphicon glyphicon-search form-control-feedback"></i>\
-                <input type="search" class="form-control searching" placeholder="Search..."></input>\
-            </div>\
-        </div>\
-        <button class="btn btn-default" type="button">\
-            <span class="glyphicon glyphicon-plus"></span>\
-        </button>\
-		',
-	initialize: function () {
-		this.render();
-	},
-	render: function () {
-		$(this.el).html(this.template);
-	},
-	events: {
-		'click button': 'addContact',
-		"keyup .searching" : "searchList",
-	},
-	addContact: function () {
-		if(!editing) {
-			this.collection.trigger('addContact');
-		}
-	},
-	searchList: function (e) {
-		this.collection.trigger('searched');
-	}
-});
-
-var ContactListView = Backbone.View.extend({
-	id: 'contact-list',
-	$container: $('#contact-list-column'),
-	initialize: function (){
-		this.render();
-		var self = this;
-
-		this.listenTo(this.collection, 'add', this.populate);
-		this.listenTo(this.collection, 'searched edited', this.populate);
-
-		this.populate();
-	},
-	render: function () {
-		this.$container.append(this.$el);
-	},
-	populate: function () {
-		var self = this;
-
-		this.collection.search($('.searching').val()).forEach(function (i) {
-			new ContactListingView({
-				model: i,
-				collection: self.collection
-			});
-		});
-	}
-});
-
-var ContactListingView = Backbone.View.extend({
-	className: 'contact-listing row',
-	$container: $('#contact-list'),
-	template: _.template(' \
-            <div class="col-xs-10 listing-name"><p><%= name %></p></div> \
-            <div class="delete-contact col-xs-2 glyphicon glyphicon-trash"></div>'),
-	events: {
-		'click .delete-contact': 'listDelete',
-		'click .listing-name': 'pickName'
-	},
-	initialize: function (){
-		this.render();
-		//this.listenTo(this.model, 'change', this.render);
-		this.listenTo(this.model, 'destroy', this.removeView);
-		this.listenTo(this.collection, 'add edited searched', this.removeView);
-		this.listenTo(this.model, 'pick', this.pickName);
-
-		if (this.model.cid == currentModel) {
-			this.$el.addClass('picked');
-		}
-	},
-	render: function () {
-		var questionHtml = this.template({
-			name: this.model.get('last') + ', ' + this.model.get('first')
-		});
-
-		this.$el.html(questionHtml);
-		this.$container.append(this.$el);
-	},
-	listDelete: function (e) {
-		this.model.destroy();
-	},
-	removeView: function () {
-		this.remove();
-		this.stopListening();
-	},
-	pickName: function () {
-		currentModel = this.model.cid;
-		$('.contact-listing').removeClass('picked');
-		this.$el.addClass('picked');
-		this.collection.trigger('pickName');
-	}
-});
-
-var ContactViewportChildView = Backbone.View.extend({
+App.ContactViewportChildView = Backbone.View.extend({
 	template: _.template('\
 		<form>\
 			<p>First Name:<input name="first" type="text" value="<%= first %>" readonly></p>\
@@ -186,8 +82,8 @@ var ContactViewportChildView = Backbone.View.extend({
 	},
 });
 
-var ContactViewportView = Backbone.View.extend({
-	model: Contact,
+App.ContactViewportView = Backbone.View.extend({
+	model: App.Contact,
 	className: 'contact-info row',
 	$container: $('#contact-view'),
 	template: _.template(' \
@@ -218,7 +114,7 @@ var ContactViewportView = Backbone.View.extend({
 		this.listenTo(this.collection, 'add change', this.subRender);
 		this.render();
 
-		new ContactViewportChildView({
+		new App.ContactViewportChildView({
 			model: self.model,
 			collection: self.collection,
 			el: '.contact-fields',

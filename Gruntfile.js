@@ -16,7 +16,11 @@ module.exports = function ( grunt ) {
       js: {
         src: [
           'src/js/_intro.js',
-          'src/js/!(_intro|_outro)*.js',
+          'src/js/model.js',
+          'src/js/search-view.js',
+          'src/js/list-views.js',
+          'src/js/viewport-views.js',
+          'src/js/collection.js',
           'src/js/_outro.js'
         ],
         dest: 'dist/<%= pkg.name %>.js'
