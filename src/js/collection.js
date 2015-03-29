@@ -53,7 +53,9 @@ App.List = Backbone.Collection.extend({
 		}
 	},
 	pickContact: function () {
-		// this.get(currentModel).trigger('pick');
+		if(!isMobile) {
+			this.get(currentModel).trigger('pick');
+		}
 	},
 	saveIt: function () {
 		this.forEach(function (i) {
@@ -76,6 +78,8 @@ App.List = Backbone.Collection.extend({
 		});
 		$('#contact-view').show();
 		$('#contact-view').animate({left: "0"}, 500);
+
+		whichShowing = 'viewport';
 	},
 	showList: function () {
 		$('#contact-view').animate({left: "100%"}, 500, function (){
@@ -84,5 +88,7 @@ App.List = Backbone.Collection.extend({
 		$('#contact-list-column').show();
 		$('#contact-list-column').animate({left: "0"}, 500);
 		$('.top-bar').css('width', '100%');
+
+		whichShowing = 'list';
 	}
 });

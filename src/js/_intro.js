@@ -3,6 +3,7 @@ var phonebook = window.phonebook || (function () {
 var App = {},
 	deletedIndex,
 	viewport,
+	whichShowing,
 	isMobile = true,
 	creatingContact = false,
 	currentModel = 'c01',
