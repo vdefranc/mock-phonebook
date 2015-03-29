@@ -3,7 +3,10 @@ $(document).ready(function () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
 
+	// initiates app
 	var collection = new App.List();
+
+	// inital checks
 	resizeSearchBar();
 	checkScreenSize(collection);
 	

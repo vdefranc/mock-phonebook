@@ -1,5 +1,6 @@
 var phonebook = window.phonebook || (function () {
 
+// define state vars. App will be returned by IIFE
 var App = {},
 	deletedIndex,
 	viewport,
@@ -9,6 +10,7 @@ var App = {},
 	currentModel = 'c01',
 	editing = false,
 	indexAfterDelete = 0,
+	// will load to localStorage if first time running
 	initialData = [
 		{
 			first: 'Adam',
@@ -102,31 +104,33 @@ var App = {},
 		}
 	];
 
+// determines appropriate contact to show after one is deleted
 function findIndexAfterDelete (collection) {
 	var currentContact;
 
-	if (!collection.at(deletedIndex)) {
+	if (!collection.at(deletedIndex)) { // runs if contact is either first in list or last in list
 
-		if (deletedIndex === 0) {
+		if (deletedIndex === 0) { // if contact was first and length === 0, list is empty. Goes straight to contact creation
 			collection.trigger('addContact');
 			currentContact = 0;
 		} else {
-			currentContact = deletedIndex - 1;
+			currentContact = deletedIndex - 1; // otherwise deleted item was last. we select prev item.
 		}
 
 	} else {
-		currentContact = deletedIndex;
+		currentContact = deletedIndex; //if deleted was neither first nor last, we simply select next item.
 	}
 
-	currentModel = collection.at(currentContact);
+	currentModel = collection.at(currentContact); // loads model to state war
 }
 
 function checkScreenSize (collection) {
 	if($(window).width() <= 525 ) {
 		isMobile = true;
-		$('.picked').removeClass('picked')
+		$('.picked').removeClass('picked'); 
 		$('.glyphicon-menu-left').closest('button').show();
 
+		// handles resizing from mobile to not mobile
 		if($('#contact-view').is(':visible')){
 			$('#contact-view').css({
 				'display': 'block',
@@ -136,6 +140,8 @@ function checkScreenSize (collection) {
 
 	} else {
 		isMobile = false;
+
+		// handles resizing from mobile to not mobile
 		if(!$('#contact-list-column').is(':visible')){
 			$('#contact-list-column').css({
 				'display': 'block',
@@ -148,7 +154,10 @@ function checkScreenSize (collection) {
 				'left': '0%'
 			});
 		}
+
 		collection.get({cid: currentModel}).trigger('notMobile');
+
+		//hide back button
 		$('.glyphicon-menu-left').closest('button').hide();
 	}
 }
@@ -183,6 +192,7 @@ App.SearchView = Backbone.View.extend({
 	render: function () {
 		$(this.el).html(this.template);
 	},
+	// initiates contact adding
 	addContact: function () {
 		if(!editing) {
 			this.collection.trigger('addContact');
@@ -192,6 +202,7 @@ App.SearchView = Backbone.View.extend({
 			}
 		}
 	},
+	// initiates search
 	searchList: function (e) {
 		this.collection.trigger('searched');
 	}
@@ -200,10 +211,7 @@ App.ListView = Backbone.View.extend({
 	id: 'contact-list',
 	$container: $('#contact-list-column'),
 	initialize: function (){
-		var self = this;
-
 		this.listenTo(this.collection, 'add searched edited', this.populate);
-
 		this.render();
 	},
 	render: function () {
@@ -212,7 +220,7 @@ App.ListView = Backbone.View.extend({
 	},
 	populate: function () {
 		var self = this;
-
+		// creates new views based on search returns. Includes all if search is ''
 		this.collection.search($('.searching').val()).forEach(function (i) {
 			new App.ListingView({
 				model: i,
@@ -233,15 +241,11 @@ App.ListingView = Backbone.View.extend({
 		'click .listing-name': 'pickName'
 	},
 	initialize: function (){
-		this.render();
 		this.listenTo(this.model, 'destroy', this.removeView);
 		this.listenTo(this.model, 'notMobile', this.notMobile);
 		this.listenTo(this.model, 'pick', this.pickName);
 		this.listenTo(this.collection, 'add edited searched', this.removeView);
-
-		if (this.model.cid === currentModel && !isMobile) {
-			this.$el.addClass('picked');
-		}
+		this.render();
 	},
 	render: function () {
 		var info = this.template({
@@ -250,16 +254,22 @@ App.ListingView = Backbone.View.extend({
 
 		this.$el.html(info);
 		this.$container.append(this.$el);
+
+		//re-adds highlight color when list re-renders on search
+		if (this.model.cid === currentModel && !isMobile) {
+			this.$el.addClass('picked');
+		}
 	},
 	listDelete: function (e) {
 		this.model.destroy();
 	},
 	notMobile: function () {
-		this.$el.addClass('picked');;
+		this.$el.addClass('picked');
 	},
 	pickName: function () {
 		currentModel = this.model.cid;
 
+		// changes highlight after picking a contact, but only if not mobile-sized
 		if(!isMobile) {
 			$('.picked').removeClass('picked');
 			this.$el.addClass('picked');
@@ -269,6 +279,7 @@ App.ListingView = Backbone.View.extend({
 
 		this.collection.trigger('pickName');
 	},
+	// allows garbage collector to delete dom nodes
 	removeView: function () {
 		this.remove();
 		this.stopListening();
@@ -287,14 +298,12 @@ App.ViewportInfoView = Backbone.View.extend({
 		<p class="validationMessage">Please enter a valid 10-digit phone number.</p> \
 		</div> \
 	'),
-	events: {
-	},
 	initialize: function () {
-		this.render();
-
 		this.listenTo(this.collection, 'pickName', this.changeModel, this);
 		this.listenTo(this.collection, 'addContact', this.newModel, this);
 		this.listenTo(this.collection, 'edit', this.edit, this);
+
+		this.render();
 	},
 	render: function () {
 		var info = this.template({
@@ -304,92 +313,93 @@ App.ViewportInfoView = Backbone.View.extend({
 		});
 
 		this.$el.html(info);
+
+		// enables masking plugin for pone input field.
 		this.$el.find('input[name="phone"]').mask('(000) 000-0000');
 	},
+	// re-renders on model change
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
 		this.render();
 	},
+	// initiates and completes contact editing
 	edit: function () {
 		var editButton = $('.button-edit').find('span'),
 			inputs = $('.info-input'),
 			vals = [];
 
+		//begin edit
 		if (!editing) {
-			initiateEdit();
+			editing = true;
+			inputs.attr("readonly", false)
+				.addClass('active-edit');
+			editButton.addClass('glyphicon-floppy-save');
+
+		//process edit request
 		} else {
+			// gets input values
 			inputs.each(function(i){
 				vals.push($(this).val());
 			});
 
-			if(!validate(vals)) {
+			// procedes if values are valid
+			if(!this.validate(vals)) {
 				return false;
 			}
 
+			// sets model vals
 			this.model.set({
 				first: vals[0],
 				last: vals[1],
 				phone: vals[2]
 			});
-$('.phone').text(function(i, text) {
-    return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-});
+
+			// resets edit/save button to edit mode
 			editButton.removeClass('glyphicon-floppy-save');
 
+			// adds model to collection if appropriate
 			if (creatingContact) {
 				console.log('create contact');
 				this.collection.add(this.model);
 				creatingContact = false;
 			}
 
+			//wrap up
 			this.render();
 			currentModel = this.model.cid;
 			this.collection.trigger('edited');
 			editing = false;
-
 		}
-
-		function initiateEdit () {
-			editing = true;
-			inputs.attr("readonly", false)
-				.addClass('active-edit');
-			
-			editButton.addClass('glyphicon-floppy-save');
-		}
-
-		function validate (vals) {
-			var phoneDigits = vals[2].split(/[-()\s]/gi).join('');
-			var first = /^[a-zA-Z]+$/.test(vals[0]),
-				last = /^[a-zA-Z]+$/.test(vals[1]),
-				phone = /^\d{10}$/.test(phoneDigits),
-				testArray = [first, last, phone],
-				allPass = first && last && phone;
-
-			if (allPass) {
-				return true;
-			} else {
-				var iterator = 0;
-				testArray.forEach(function (i) {
-					if (!i) {
-						$($('.info-input')[iterator]).css('border', '1px solid red');
-						$($('.validationMessage')[iterator]).show();
-						console.log($('.validationMessage')[iterator]);
-					}
-					iterator++;
-				});
-			}
-		}
-
 	},
 	newModel: function () {
 		this.model = currentModel;
 		this.render();
 		this.edit();
+	},
+	validate: function (vals) {
+		// stores regex tests
+		var phoneDigits = vals[2].split(/[-()\s]/gi).join(''),
+				first = /^[a-zA-Z]+$/.test(vals[0]),
+				last = /^[a-zA-Z]+$/.test(vals[1]),
+				phone = /^\d{10}$/.test(phoneDigits),
+				testArray = [first, last, phone],
+				allPass = first && last && phone;
+
+		if (allPass) {
+			return true;
+		} else {
+			var iterator = 0;
+			testArray.forEach(function (i) {
+				// if invalid, shows invalid message and changes border to red
+				if (!i) {
+					$($('.info-input')[iterator]).css('border', '1px solid red');
+					$($('.validationMessage')[iterator]).show();
+					console.log($('.validationMessage')[iterator]);
+				}
+				iterator++;
+			});
+		}
 	}
-});
-
-App.ValidationView = Backbone.View.extend({
-
 });
 
 App.ViewportView = Backbone.View.extend({
@@ -399,9 +409,9 @@ App.ViewportView = Backbone.View.extend({
 	template: _.template(' \
             <div class="col-sm-12">\
                  <div class="contact-view-button-wrapper">\
-	                <button class="btn btn-default button-back" type="button">\
-	                        <span class="glyphicon glyphicon-menu-left"></span>\
-		            </button>\
+					<button class="btn btn-default button-back" type="button">\
+						<span class="glyphicon glyphicon-menu-left"></span>\
+					</button>\
                     <button class="btn btn-default button-edit" type="button">\
                         <span class="glyphicon glyphicon-pencil"></span>\
                     </button>\
@@ -459,6 +469,7 @@ App.ViewportView = Backbone.View.extend({
 		creatingContact = true;
 		this.subRender();
 	},
+	// changes name header 
 	subRender: function () {
 		var text = this.model.get('first') ? this.model.get('first') + ' ' + this.model.get('last') : 'New Contact';
 			
@@ -489,6 +500,7 @@ App.List = Backbone.Collection.extend({
 		this.on('change add edited', this.saveIt);
 		this.on('edited', this.saveIt);
 
+		// handles initial load vs load localStorage
 		if(!localStorage.length){
 			this.reset(initialData);
 			this.forEach(function (i) {
@@ -498,6 +510,7 @@ App.List = Backbone.Collection.extend({
 			this.fetch();
 		}
 
+		// sets initial model to the first model
 		currentModel = this.at(0).cid;
 
 		new App.SearchView({collection: self});
@@ -527,6 +540,7 @@ App.List = Backbone.Collection.extend({
 			this.get(currentModel).trigger('pick');
 		}
 	},
+	// saves to localStorage
 	saveIt: function () {
 		this.forEach(function (i) {
 			i.save();
@@ -542,6 +556,7 @@ App.List = Backbone.Collection.extend({
 			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
 		});
 	},
+	// handles list click while in mobile mode
 	showViewport: function () {
 		$('#contact-list-column').animate({left: "-100%"}, 500, function (){
 			$(this).hide();
@@ -551,6 +566,7 @@ App.List = Backbone.Collection.extend({
 
 		whichShowing = 'viewport';
 	},
+	// handles back button click while in mobile mode
 	showList: function () {
 		$('#contact-view').animate({left: "100%"}, 500, function (){
 			$(this).hide();
@@ -567,7 +583,10 @@ $(document).ready(function () {
 		$('.top-bar').innerWidth($('.top-bar').parent().innerWidth());
 	}
 
+	// initiates app
 	var collection = new App.List();
+
+	// inital checks
 	resizeSearchBar();
 	checkScreenSize(collection);
 	

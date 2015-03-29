@@ -21,6 +21,7 @@ App.SearchView = Backbone.View.extend({
 	render: function () {
 		$(this.el).html(this.template);
 	},
+	// initiates contact adding
 	addContact: function () {
 		if(!editing) {
 			this.collection.trigger('addContact');
@@ -30,6 +31,7 @@ App.SearchView = Backbone.View.extend({
 			}
 		}
 	},
+	// initiates search
 	searchList: function (e) {
 		this.collection.trigger('searched');
 	}

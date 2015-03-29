@@ -19,6 +19,7 @@ App.List = Backbone.Collection.extend({
 		this.on('change add edited', this.saveIt);
 		this.on('edited', this.saveIt);
 
+		// handles initial load vs load localStorage
 		if(!localStorage.length){
 			this.reset(initialData);
 			this.forEach(function (i) {
@@ -28,6 +29,7 @@ App.List = Backbone.Collection.extend({
 			this.fetch();
 		}
 
+		// sets initial model to the first model
 		currentModel = this.at(0).cid;
 
 		new App.SearchView({collection: self});
@@ -57,6 +59,7 @@ App.List = Backbone.Collection.extend({
 			this.get(currentModel).trigger('pick');
 		}
 	},
+	// saves to localStorage
 	saveIt: function () {
 		this.forEach(function (i) {
 			i.save();
@@ -72,6 +75,7 @@ App.List = Backbone.Collection.extend({
 			return pattern.test(contact.get("last") + ' ' + contact.get("first"));
 		});
 	},
+	// handles list click while in mobile mode
 	showViewport: function () {
 		$('#contact-list-column').animate({left: "-100%"}, 500, function (){
 			$(this).hide();
@@ -81,6 +85,7 @@ App.List = Backbone.Collection.extend({
 
 		whichShowing = 'viewport';
 	},
+	// handles back button click while in mobile mode
 	showList: function () {
 		$('#contact-view').animate({left: "100%"}, 500, function (){
 			$(this).hide();

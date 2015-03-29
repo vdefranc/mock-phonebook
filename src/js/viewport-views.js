@@ -11,14 +11,12 @@ App.ViewportInfoView = Backbone.View.extend({
 		<p class="validationMessage">Please enter a valid 10-digit phone number.</p> \
 		</div> \
 	'),
-	events: {
-	},
 	initialize: function () {
-		this.render();
-
 		this.listenTo(this.collection, 'pickName', this.changeModel, this);
 		this.listenTo(this.collection, 'addContact', this.newModel, this);
 		this.listenTo(this.collection, 'edit', this.edit, this);
+
+		this.render();
 	},
 	render: function () {
 		var info = this.template({
@@ -28,92 +26,93 @@ App.ViewportInfoView = Backbone.View.extend({
 		});
 
 		this.$el.html(info);
+
+		// enables masking plugin for pone input field.
 		this.$el.find('input[name="phone"]').mask('(000) 000-0000');
 	},
+	// re-renders on model change
 	changeModel: function () {
 		this.model = this.collection.get({cid: currentModel});
 		this.render();
 	},
+	// initiates and completes contact editing
 	edit: function () {
 		var editButton = $('.button-edit').find('span'),
 			inputs = $('.info-input'),
 			vals = [];
 
+		//begin edit
 		if (!editing) {
-			initiateEdit();
+			editing = true;
+			inputs.attr("readonly", false)
+				.addClass('active-edit');
+			editButton.addClass('glyphicon-floppy-save');
+
+		//process edit request
 		} else {
+			// gets input values
 			inputs.each(function(i){
 				vals.push($(this).val());
 			});
 
-			if(!validate(vals)) {
+			// procedes if values are valid
+			if(!this.validate(vals)) {
 				return false;
 			}
 
+			// sets model vals
 			this.model.set({
 				first: vals[0],
 				last: vals[1],
 				phone: vals[2]
 			});
-$('.phone').text(function(i, text) {
-    return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-});
+
+			// resets edit/save button to edit mode
 			editButton.removeClass('glyphicon-floppy-save');
 
+			// adds model to collection if appropriate
 			if (creatingContact) {
 				console.log('create contact');
 				this.collection.add(this.model);
 				creatingContact = false;
 			}
 
+			//wrap up
 			this.render();
 			currentModel = this.model.cid;
 			this.collection.trigger('edited');
 			editing = false;
-
 		}
-
-		function initiateEdit () {
-			editing = true;
-			inputs.attr("readonly", false)
-				.addClass('active-edit');
-			
-			editButton.addClass('glyphicon-floppy-save');
-		}
-
-		function validate (vals) {
-			var phoneDigits = vals[2].split(/[-()\s]/gi).join('');
-			var first = /^[a-zA-Z]+$/.test(vals[0]),
-				last = /^[a-zA-Z]+$/.test(vals[1]),
-				phone = /^\d{10}$/.test(phoneDigits),
-				testArray = [first, last, phone],
-				allPass = first && last && phone;
-
-			if (allPass) {
-				return true;
-			} else {
-				var iterator = 0;
-				testArray.forEach(function (i) {
-					if (!i) {
-						$($('.info-input')[iterator]).css('border', '1px solid red');
-						$($('.validationMessage')[iterator]).show();
-						console.log($('.validationMessage')[iterator]);
-					}
-					iterator++;
-				});
-			}
-		}
-
 	},
 	newModel: function () {
 		this.model = currentModel;
 		this.render();
 		this.edit();
+	},
+	validate: function (vals) {
+		// stores regex tests
+		var phoneDigits = vals[2].split(/[-()\s]/gi).join(''),
+				first = /^[a-zA-Z]+$/.test(vals[0]),
+				last = /^[a-zA-Z]+$/.test(vals[1]),
+				phone = /^\d{10}$/.test(phoneDigits),
+				testArray = [first, last, phone],
+				allPass = first && last && phone;
+
+		if (allPass) {
+			return true;
+		} else {
+			var iterator = 0;
+			testArray.forEach(function (i) {
+				// if invalid, shows invalid message and changes border to red
+				if (!i) {
+					$($('.info-input')[iterator]).css('border', '1px solid red');
+					$($('.validationMessage')[iterator]).show();
+					console.log($('.validationMessage')[iterator]);
+				}
+				iterator++;
+			});
+		}
 	}
-});
-
-App.ValidationView = Backbone.View.extend({
-
 });
 
 App.ViewportView = Backbone.View.extend({
@@ -123,9 +122,9 @@ App.ViewportView = Backbone.View.extend({
 	template: _.template(' \
             <div class="col-sm-12">\
                  <div class="contact-view-button-wrapper">\
-	                <button class="btn btn-default button-back" type="button">\
-	                        <span class="glyphicon glyphicon-menu-left"></span>\
-		            </button>\
+					<button class="btn btn-default button-back" type="button">\
+						<span class="glyphicon glyphicon-menu-left"></span>\
+					</button>\
                     <button class="btn btn-default button-edit" type="button">\
                         <span class="glyphicon glyphicon-pencil"></span>\
                     </button>\
@@ -183,6 +182,7 @@ App.ViewportView = Backbone.View.extend({
 		creatingContact = true;
 		this.subRender();
 	},
+	// changes name header 
 	subRender: function () {
 		var text = this.model.get('first') ? this.model.get('first') + ' ' + this.model.get('last') : 'New Contact';
 			

@@ -1,6 +1,6 @@
 /* Query Vars */
 $medium-lg: 980px;
-$medium-sm: 680px;
+$medium-sm: 780px;
 $mobile: 525px;
 
 .glyphicon {
@@ -17,6 +17,7 @@ body {
 	margin: 0 auto;
 	border-left: 1px solid #ccc;
 	border-right: 1px solid #ccc;
+	background-color: white;
 
 	@media (max-width: $medium-lg) {
 		width: 90%;

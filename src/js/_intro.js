@@ -1,5 +1,6 @@
 var phonebook = window.phonebook || (function () {
 
+// define state vars. App will be returned by IIFE
 var App = {},
 	deletedIndex,
 	viewport,
@@ -9,6 +10,7 @@ var App = {},
 	currentModel = 'c01',
 	editing = false,
 	indexAfterDelete = 0,
+	// will load to localStorage if first time running
 	initialData = [
 		{
 			first: 'Adam',
@@ -102,31 +104,33 @@ var App = {},
 		}
 	];
 
+// determines appropriate contact to show after one is deleted
 function findIndexAfterDelete (collection) {
 	var currentContact;
 
-	if (!collection.at(deletedIndex)) {
+	if (!collection.at(deletedIndex)) { // runs if contact is either first in list or last in list
 
-		if (deletedIndex === 0) {
+		if (deletedIndex === 0) { // if contact was first and length === 0, list is empty. Goes straight to contact creation
 			collection.trigger('addContact');
 			currentContact = 0;
 		} else {
-			currentContact = deletedIndex - 1;
+			currentContact = deletedIndex - 1; // otherwise deleted item was last. we select prev item.
 		}
 
 	} else {
-		currentContact = deletedIndex;
+		currentContact = deletedIndex; //if deleted was neither first nor last, we simply select next item.
 	}
 
-	currentModel = collection.at(currentContact);
+	currentModel = collection.at(currentContact); // loads model to state war
 }
 
 function checkScreenSize (collection) {
 	if($(window).width() <= 525 ) {
 		isMobile = true;
-		$('.picked').removeClass('picked')
+		$('.picked').removeClass('picked'); 
 		$('.glyphicon-menu-left').closest('button').show();
 
+		// handles resizing from mobile to not mobile
 		if($('#contact-view').is(':visible')){
 			$('#contact-view').css({
 				'display': 'block',
@@ -136,6 +140,8 @@ function checkScreenSize (collection) {
 
 	} else {
 		isMobile = false;
+
+		// handles resizing from mobile to not mobile
 		if(!$('#contact-list-column').is(':visible')){
 			$('#contact-list-column').css({
 				'display': 'block',
@@ -148,7 +154,10 @@ function checkScreenSize (collection) {
 				'left': '0%'
 			});
 		}
+
 		collection.get({cid: currentModel}).trigger('notMobile');
+
+		//hide back button
 		$('.glyphicon-menu-left').closest('button').hide();
 	}
 }
