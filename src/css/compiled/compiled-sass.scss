@@ -7,11 +7,11 @@ $mobile: 525px;
 	top: 0;
 }
 
-html {
+body {
 	background-color: #eee;
 }
 
-body {
+#phonebook-container {
 	overflow: hidden;
 	width: 70%;
 	margin: 0 auto;
@@ -119,6 +119,7 @@ body {
 }
 
 #contact-view {
+	background-color: white;
 	height: 100%;
 	padding-top: 1em;
 
