@@ -498,7 +498,6 @@ App.List = Backbone.Collection.extend({
 		this.on('edited', this.sort, this);
 		this.on('edited searched', this.pickContact, this);
 		this.on('change add edited', this.saveIt);
-		this.on('edited', this.saveIt);
 
 		// handles initial load vs load localStorage
 		if(!localStorage.length){
